@@ -4,9 +4,8 @@ cdntools:
      - "80:80"
     environment:
        SERVICE_80_NAME: http
-       SERVICE_NAME: fileshare
+       SERVICE_NAME: cdntools
        SERVICE_TAGS: production
-    volumes:
-     - "/docker-volumes/cdn-tools/config:/var/www/fuelphp/fuel/app/config"
-
-
+#   volumes:
+#    - "/docker-volumes/cdn-tools/config:/var/www/fuelphp/fuel/app/config"
+#
