@@ -14,7 +14,7 @@ class Akamai {
     private $authentication;
 
     public function __construct($account) {
-        $this->authentication = Config::get('akamai.cdn.' . $account . '.authentication');
+        $this->authentication = Config::get('cdn.akamai.' . $account . '.authentication');
         $this->account = $account;
     }
 
@@ -90,6 +90,16 @@ class Akamai {
     public function get_cdn() {
         $cls = get_class($this);
         return strtolower(substr($cls, strrpos($cls, "\\") + 1, strlen($cls)));
+    }
+
+    public function check_helth() {
+        $result = false;
+        $webapi = new Webapi();
+        $result = $webapi->execute(self::PURGE_QUEUE, $this->authentication, 'GET');
+        if ($result['http_code'] == 200) {
+            $result = true;
+        }
+        return $result;
     }
 
 }
