@@ -9,7 +9,7 @@ return array(
     'default' => array(
         'type' => 'pdo',
         'connection' => array(
-            'dsn' => 'sqlite:' . APPPATH . 'test.db',
+            'dsn' => 'sqlite:' . APPPATH . 'cdntools.db',
             'persistent' => false,
             'compress' => false,
         ),
