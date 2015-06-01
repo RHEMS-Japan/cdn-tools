@@ -18,34 +18,28 @@ Docker 1.5以降が動作する環境にてテストを行っています
 
 Docker Composeの定義ファイルを同梱していますのでDocker Composeの導入もお薦めします(必須ではありません)
 
-## ビルド
+## 設定ファイルの準備
 
-Docker Composeがインストール済であれば以下のコマンドでビルドが完了します
+直接ビルド前に設定ファイルを修正するか、コンテナ起動時のボリュームオプションにて設定ファイルの場所を指定する必要があります
+後者は設定変更が頻繁に行われる場合便利です
 
-```
-$ git clone https://github.com/RHEMS-Japan/cdn-tools
-$ cd cdn-tools
-$ docker-compose build
-```
+設定ひな形はfuel/app/config/example以下にあります
 
-## 設定
-
-コンテナ起動時のボリュームオプションにて設定する必要があります
-
-設定ファイルはcdn-tools.phpというファイルで作成する必要があります
 
 ```
+<?php
 return array(
    'akamai' => array(
        'account1' => array(
            'enable' => true,
            'authentication' => array(
-               'user' => 'hogehoge@rhems-japan.co.jp',
+               'user' => 'hogehoge@hogefuga.jp',
                'password' => 'hogehoge',
            ),
            'notification' => array(
                'type' => 'mail',
-               'addr' => 'hogehoge@rhems-japan.co.jp',
+               'addr' => 'hogehoge@hogefuga.jp',
+               'title' => 'report-akamai',
            ),
        ),
    ),
@@ -53,12 +47,13 @@ return array(
        'account1' => array(
            'enable' => true,
            'authentication' => array(
-               'user' => 'hogehoge@rhems-japan.co.jp',
+               'user' => 'hogehoge@hogefuga.jp',
                'password' => 'hogehoge',
            ),           
            'notification' => array(
                'type' => 'slack',
                'token' => 'XXXX-YYYY-XZZZZ-ZZXXYY-000-AAAA',
+               'title' => 'report-keycdn',
                'channel' => 'cdn-channel',
            ),
        ),
@@ -80,13 +75,34 @@ return array(
 );
 ```
 
+## ビルド
 
-以下`/usr/local/etc/cdn-tools/config`に設定ファイルを配置した場合のオプション例です
+Docker Composeがインストール済であれば以下のコマンドでビルドが完了します
 
 ```
-docker run cdn_tools:latest \
+$ git clone https://github.com/RHEMS-Japan/cdn-tools
+$ cd cdn-tools
+$ docker-compose build
+```
+
+## 起動
+
+以下ボリュームオプションを利用して`/usr/local/etc/cdn-tools/config`に設定ファイルを配置した例です
+
+```
+docker run (コンテナID) \
   -v "/usr/local/etc/cdn-tools:/etc/cdn-tools"
 ```
+
+## パージリクエストデータベースの作成
+
+```
+docker exec -it (コンテナID) /usr/bin/cdn initdb
+drop table cdnrequet! are you ready? [ Y, n ]: Y
+Database initialized.
+```
+
+すでにテーブルが存在していた場合は上記のような確認が入ります
 
 ## CLIからの操作
 
@@ -100,7 +116,7 @@ $ docker exec <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウン�
 
 ```
 $ docker exec cdn_tools:latest /usr/bin/cdn akamai account1 \
-    purgeCode 12345678 --domain production --action invalidate
+    purge 12345678 --domain production --action invalidate
 ```
 
 ### 利用可能なコマンド
@@ -122,6 +138,8 @@ $ docker exec cdn_tools:latest /usr/bin/cdn akamai account1 \
     各パージリクエストで発行されたリクエストIDごとの進行状況を確認します
     
 ## Webインターフェースからの操作
+
+http://(コンテナIP):8031/
 
 ```現在作成中```
 
