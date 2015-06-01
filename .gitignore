@@ -37,3 +37,4 @@ desktop.ini
 /fuel/app/config/production/
 /fuel/app/config/staging/
 /fuel/app/config/test/
+/fuel/app/*.db
