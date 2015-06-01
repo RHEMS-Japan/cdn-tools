@@ -13,15 +13,10 @@ class Webapi {
             $config = $this->config;
         }
         $ch = curl_init($url);
-        if (isset($config['authentication']['type'])) {
-            switch ($config['authentication']['type']) {
-                case 'basic':
-                    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    $credentials = $config['authentication']['user'] . ':' . $config['authentication']['password'];
-                    curl_setopt($ch, CURLOPT_USERPWD, $credentials);
-                    break;
-                default:
-            }
+        if (isset($config['authentication'])) {
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            $credentials = $config['authentication']['user'] . ':' . $config['authentication']['password'];
+            curl_setopt($ch, CURLOPT_USERPWD, $credentials);
         }
         $headers = array();
         if (isset($config['content-type'])) {
