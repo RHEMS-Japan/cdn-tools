@@ -15,6 +15,7 @@ RUN apt-get -y install php5-mcrypt
 RUN apt-get -y install php5-mhash
 RUN apt-get -y install php5-mysqlnd
 RUN apt-get -y install php5-xsl
+RUN apt-get -y install php5-sqlite
 RUN apt-get -y install zip
 RUN apt-get -y install expect
 RUN apt-get -y install cron
@@ -35,6 +36,9 @@ RUN (cd /var/www/fuelphp && php oil r install)
 RUN ln -sf /dev/stdout /var/log/apache2/access.log
 RUN ln -sf /dev/stderr /var/log/apache2/error.log
 RUN /usr/sbin/a2enmod rewrite
+
+ADD cdn.sh /usr/bin/cdn
+RUN chmod 755 /usr/bin/cdn
 
 ADD startup.sh /
 RUN chmod 755 /startup.sh
