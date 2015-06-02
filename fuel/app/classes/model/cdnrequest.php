@@ -1,6 +1,8 @@
 <?php
 
-class Model_CdnRequest extends Orm\Model {
+namespace Model;
+
+class CdnRequest extends \Orm\Model {
 
     protected static $_table_name = 'cdnrequest';
     protected static $_properties = array(
