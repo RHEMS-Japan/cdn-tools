@@ -6,12 +6,12 @@ use Config;
 
 class CloudFront {
 
-    private $account;
+    private $user;
     private $authentication;
 
-    public function __construct($account) {
-        $this->authentication = Config::get('cdn.cliudfront.' . $account . '.authentication');
-        $this->account = $account;
+    public function __construct($user, $config) {
+        $this->user = $user;
+        $this->authentication = $config['authentication'];
     }
 
     public function get_cdn() {
