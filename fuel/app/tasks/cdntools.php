@@ -37,19 +37,31 @@ class cdntools {
      * SQLiteデータベースの初期設定
      */
     public static function init_db() {
-        $result = false;
+        $create = false;
+        $result = array();
         if (DBUtil::table_exists('cdnrequest')) {
             $ready = Cli::prompt('drop table cdnrequet! are you ready?', array('Y', 'n'));
             if ($ready == 'Y') {
                 DBUtil::drop_table('cdnrequest');
-                $result = self::create_table();
+                $create = self::create_table();
+            } else {
+                
             }
         } else {
-            $result = self::create_table();
+            $create = self::create_table();
         }
-        if ($result) {
-            Cli::write('Database initialized.');
+        if ($create) {
+            $result = array(
+                'success' => true,
+                'message' => 'Database initialized.',
+            );
+        } else {
+            $result = array(
+                'success' => false,
+                'error' => 'Abort.',
+            );
         }
+        return $result;
     }
 
     public static function check_cdn($cdn) {
@@ -65,11 +77,13 @@ class cdntools {
     }
 
     public static function run($p1, $p2 = null, $command = null, $opt1 = null, $opt2 = null, $opt3 = null) {
+        $result = array('success' => false);
         $cdn = false;
-        $account = false;
+        $account_config = false;
+        $notification_config = false;
+        $quiet = Cli::option('quiet', false);
         if (self::check_cdn($p1)) {
             // CDNサービスが存在
-            $quiet = Cli::option('quiet', false);
             $cdn = $p1;
             $options = array();
             switch ($cdn) {
@@ -89,58 +103,85 @@ class cdntools {
                 case 'cloudfront':
                     break;
             }
-            $account_config = Config::get('cdn.' . $cdn . '.' . $p2);
+            $account_config = Config::get('cdn.' . $cdn . '.' . $p2, false);
             if ($account_config) {
                 // 有効なサービス名でアカウント設定あり
                 $account_name = $p2;
+                $notification_config = Config::get('cdn.' . $cdn . '.' . $account_name . '.notification', false);
                 $cls_name = "\\Cdn\\" . $cdn;
                 $cdn_service = new $cls_name($account_name, $account_config);
                 $result = $cdn_service->delegate($command, $options);
-                var_dump($result);
             } else {
                 // アカウント設定が無効
-                self::error_message('Account settings mismatch.');
+                $result['error'] = 'Account settings mismatch.';
             }
         } else {
             // CDNサービス名以外のコマンド
             switch ($p1) {
                 case 'version':
+                    $result = array(
+                        'success' => true,
+                        'message' => 'RHEMS CDN-Tools Version ' . self::CLI_VERSION,
+                    );
                     break;
-                case 'api-helth':
-                    self::api_helth();
+                case 'api-health':
+                    $result = self::api_health();
                     break;
                 case 'debug':
-                    self::show_config();
+                    $result = self::debug();
                     break;
                 case 'init-db':
-                    self::init_db();
+                    $result = self::init_db();
                     break;
                 default:
                     // コマンドが見つからない
-                    self::error_message('Command not found.');
+                    $result['error'] = 'Command not found.';
                     break;
             }
         }
+        if ($result['success']) {
+            // 成功時の出力
+            if (!$quiet) {
+                if ($notification_config) {
+                    // 通知を行う
+                    var_dump($notification_config);
+                }
+                Cli::write($result['message']);
+            }
+            exit(0);
+        } else {
+            // 失敗時の出力
+            Cli::error($result['error']);
+            exit(-1);
+        }
     }
 
-    public static function api_helth() {
+    public static function api_health() {
         $all_config = Config::get('cdn');
         $msgs = array();
         foreach ($all_config as $cdn_name => $cdn_val) {
             foreach ($cdn_val as $account => $config) {
                 $cls_name = "\\cdn\\" . $cdn_name;
                 $service = new $cls_name($account, $config);
-                $msgs[$cdn_name][$account] = $service->check_helth();
+                $result = $service->check_health();
+                if ($result['success']) {
+                    $msgs[] = "$cdn_name : $account : [OK]";
+                } else {
+                    $msgs[] = "$cdn_name : $account : [NG]";
+                }
             }
         }
-        var_dump($msgs);
+        return array(
+            'success' => true,
+            'message' => $msgs,
+        );
     }
 
-    public static function show_config() {
-        var_dump(Config::get('cdn'));
-        var_dump(Config::get('cdn.akamai.account1.authentication'));
-        $test = new \Cdn\Akamai('account1', Config::get('cdn.akamai.account1'));
-        var_dump($test->get_cdn());
+    public static function debug() {
+        return array(
+            'success' => true,
+            'message' => 'debug message',
+        );
     }
 
 }
