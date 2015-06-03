@@ -98,8 +98,13 @@ class Akamai {
                 }
                 break;
             case 'check':
+                $result = $this->check_request();
+                break;
+            case 'check-queue':
                 $result = $this->check_queue();
                 break;
+            case 'check-health':
+                $result = $this->check_health();
             default:
                 // コマンドが見つからない
                 $result['error'] = 'Command not found.';
@@ -108,13 +113,17 @@ class Akamai {
         return $result;
     }
 
-    public function purge_request($req) {
+    public function purge_request($request) {
         $success = false;
         $webapi = new Webapi();
-        $result = $webapi->execute(self::PURGE_ENDPOINT, $this->config, 'POST', $req);
-        if ($result['http_code'] == 201) {
+        $response = $webapi->execute(self::PURGE_ENDPOINT, $this->config, 'POST', $request);
+        $result = array(
+            'api-request' => $request,
+            'api-response' => $response,
+        );
+        $json = json_decode($response['contents'], true);
+        if ($response['http_code'] == 201) {
             // Request accepted.
-            $json = json_decode($result['contents'], true);
             $cdnRequest = new \Model\CdnRequest();
             $cdnRequest->cdnType = $this->get_cdn();
             $cdnRequest->accountName = $this->user;
@@ -130,11 +139,13 @@ class Akamai {
             $cdnRequest->done = 0;
             $cdnRequest->save();
             $success = true;
+            $result['api-response-json'] = $json;
+            $result['message'] = 'Purge request accepted - [' . $json['purgeId'] . ']';
+        } else {
+            $result['error'] = $json['title'];
         }
-        return array(
-            'success' => $success,
-            'data' => $result,
-        );
+        $result['success'] = $success;
+        return $result;
     }
 
     public function check_request() {
@@ -163,6 +174,7 @@ class Akamai {
             }
         }
         return array(
+            'success' => true,
             'incomplete' => $incomplete,
             'complete' => $complete,
         );
@@ -176,7 +188,10 @@ class Akamai {
             $json = json_decode($result['contents'], true);
             $queue = $json['queueLength'];
         }
-        return $queue;
+        return array(
+            'success' => true,
+            'queue' => $queue,
+        );
     }
 
     public function get_cdn() {
@@ -184,14 +199,17 @@ class Akamai {
         return strtolower(substr($cls, strrpos($cls, "\\") + 1, strlen($cls)));
     }
 
-    public function check_helth() {
+    public function check_health() {
         $result = false;
         $webapi = new Webapi();
         $result = $webapi->execute(self::PURGE_QUEUE, $this->config, 'GET');
         if ($result['http_code'] == 200) {
             $result = true;
         }
-        return $result;
+        return array(
+            'success' => true,
+            'health' => $result,
+        );
     }
 
 }

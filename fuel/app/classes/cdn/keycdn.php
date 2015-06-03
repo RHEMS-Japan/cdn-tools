@@ -19,8 +19,11 @@ class KeyCdn {
         return strtolower(substr($cls, strrpos($cls, "\\") + 1, strlen($cls)));
     }
 
-    public function check_helth() {
-        return true;
+    public function check_health() {
+        return array(
+            'success' =>true,
+            'health' => true,
+        );
     }
 
 }
