@@ -140,7 +140,7 @@ class Akamai {
             $cdnRequest->save();
             $success = true;
             $result['api-response-json'] = $json;
-            $result['message'] = 'Purge request accepted - [' . $json['purgeId'] . ']';
+            $result['message'] = 'Akamai:: Purge request accepted - [' . $json['purgeId'] . ']';
         } else {
             $result['error'] = $json['title'];
         }
@@ -177,7 +177,7 @@ class Akamai {
         $all = count($complete) + count($incomplete);
         return array(
             'success' => true,
-            'message' => count($complete) . '/' . $all . ' is processed.',
+            'message' => 'Akamai:: ' . count($complete) . '/' . $all . ' is processed.',
             'incomplete' => $incomplete,
             'complete' => $complete,
         );
