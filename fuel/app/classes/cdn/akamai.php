@@ -152,6 +152,7 @@ class Akamai {
         $entries = \Model\CdnRequest::find('all', array(
                     'where' => array(
                         array('cdnType', $this->get_cdn()),
+                        array('accountName', $this->user),
                         array('done', 0),
                     ),
                     'order_by' => array('created_at' => 'asc'),
@@ -173,8 +174,10 @@ class Akamai {
                 }
             }
         }
+        $all = count($complete) + count($incomplete);
         return array(
             'success' => true,
+            'message' => count($complete) . '/' . $all . ' is processed.',
             'incomplete' => $incomplete,
             'complete' => $complete,
         );
