@@ -8,6 +8,7 @@ class CdnRequest extends \Orm\Model {
     protected static $_properties = array(
         'id',
         'cdnType',
+        'accountName',
         'estimatedSeconds',
         'progressUri',
         'purgeId',
@@ -24,6 +25,7 @@ class CdnRequest extends \Orm\Model {
       CREATE TABLE cdnrequest(
       id integer primary key autoincrement,
       cdnType text,
+      accountName text,
       estimatedSeconds text,
       progressUri text,
       purgeId text,
