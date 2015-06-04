@@ -8,7 +8,7 @@ use DB;
 use DBUtil;
 use Messaging\Hipchat;
 use Messaging\Slack;
-;
+
 
 class cdntools {
 
@@ -76,13 +76,30 @@ class cdntools {
     }
 
     public static function complete_message($msg) {
-        $output = 'Purge ID: ' . ($msg->purgeId) . ' Done.';
+        $output = ($msg->cdnType) . ':: Purge ID: ' . ($msg->purgeId) . ' Done.';
         return $output;
     }
 
     public static function incomplete_message($msg) {
-        $output = 'Purge ID: ' . ($msg->purgeId) . ' in progress.';
+        $output = ($msg->cdnType) . ':: Purge ID: ' . ($msg->purgeId) . ' in progress.';
         return $output;
+    }
+
+    public static function nofitication($config, $msgs) {
+        $result = array(
+            'success' => false,
+        );
+        switch ($config['type']) {
+            case 'slack':
+                break;
+            case 'hipchat':
+                $token = $config['token'];
+                $room = $config['room'];
+                $msg_api = new Hipchat();
+                $result = $msg_api->send_message($token, $room, $msgs);
+                break;
+        }
+        return $result;
     }
 
     public static function check_batch() {
@@ -94,23 +111,18 @@ class cdntools {
                 $service = new $cls_name($account, $config);
                 $result = $service->delegate('check', array());
                 if (!empty($result['complete'])) {
-                    //$msg = array();
                     foreach ($result['complete'] as $item) {
                         $msgs[] = self::complete_message($item);
+                        if ($config['notification']) {
+                            // 通知を行う
+                            self::nofitication($config['notification'], self::complete_message($item));
+                        }
                     }
-                    //Cli::write($msg);
-                    /*
-                      if ($slack_opt) {
-                      static::slackOut(implode(PHP_EOL, $msg));
-                      }
-                     */
                 } else {
                     if (!empty($result['incomplete'])) {
-                        //$msg = array();
                         foreach ($result['incomplete'] as $item) {
                             $msgs[] = self::incomplete_message($item);
                         }
-                        //Cli::write($msg);
                     }
                 }
             }
@@ -160,6 +172,10 @@ class cdntools {
                 $cls_name = "\\Cdn\\" . $cdn;
                 $cdn_service = new $cls_name($account_name, $account_config);
                 $result = $cdn_service->delegate($command, $options);
+                if ($notification_config && (!$quiet)) {
+                    // 通知を行う
+                    self::nofitication($notification_config, $result['message']);
+                }
             } else {
                 // アカウント設定が無効
                 $result['error'] = 'Account settings mismatch.';
@@ -194,22 +210,6 @@ class cdntools {
         if ($result['success']) {
             // 成功時の出力
             if (!$quiet) {
-                if ($notification_config) {
-                    // 通知を行う
-                    $type = $notification_config['type'];
-                    $token = $notification_config['token'];
-                    $msg_result = array();
-                    switch ($notification_config['type']) {
-                        case 'slack':
-                            break;
-                        case 'hipchat':
-                            $room = $notification_config['room'];
-                            $msg_api = new Hipchat();
-                            $msg_result = $msg_api->send_message($token, $room, $result['message']);
-                            break;
-                    }
-                    var_dump($msg_result);
-                }
                 Cli::write($result['message']);
             }
             exit(0);
