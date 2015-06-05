@@ -9,7 +9,6 @@ use DBUtil;
 use Messaging\Hipchat;
 use Messaging\Slack;
 
-
 class cdntools {
 
     CONST CLI_VERSION = '0.01';
@@ -75,28 +74,21 @@ class cdntools {
         return Config::get('cdn.' . $cdn . '.' . $account, false);
     }
 
-    public static function complete_message($msg) {
-        $output = ($msg->cdnType) . ':: Purge ID: ' . ($msg->purgeId) . ' Done.';
-        return $output;
-    }
-
-    public static function incomplete_message($msg) {
-        $output = ($msg->cdnType) . ':: Purge ID: ' . ($msg->purgeId) . ' in progress.';
-        return $output;
-    }
-
     public static function nofitication($config, $msgs) {
         $result = array(
             'success' => false,
         );
+        $token = $config['token'];
         switch ($config['type']) {
             case 'slack':
+                $channel = $config['channel'];
+                $msg_api = new Slack($token);
+                $result = $msg_api->send_message($channel, $msgs);
                 break;
             case 'hipchat':
-                $token = $config['token'];
                 $room = $config['room'];
-                $msg_api = new Hipchat();
-                $result = $msg_api->send_message($token, $room, $msgs);
+                $msg_api = new Hipchat($token);
+                $result = $msg_api->send_message($room, $msgs);
                 break;
         }
         return $result;
@@ -112,16 +104,16 @@ class cdntools {
                 $result = $service->delegate('check', array());
                 if (!empty($result['complete'])) {
                     foreach ($result['complete'] as $item) {
-                        $msgs[] = self::complete_message($item);
+                        $msgs[] = $item->message;
                         if ($config['notification']) {
                             // 通知を行う
-                            self::nofitication($config['notification'], self::complete_message($item));
+                            self::nofitication($config['notification'], $item->message);
                         }
                     }
                 } else {
                     if (!empty($result['incomplete'])) {
                         foreach ($result['incomplete'] as $item) {
-                            $msgs[] = self::incomplete_message($item);
+                            $msgs[] = $item->message;
                         }
                     }
                 }
