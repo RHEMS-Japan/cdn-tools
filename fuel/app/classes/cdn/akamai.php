@@ -80,9 +80,13 @@ class Akamai {
                 break;
             case 'purge-url':
                 if ($this->validate($command)->run($options)) {
-                    $arls = $this->read_arl($options['opt1']);
+                    if (is_array($options['opt1'])) {
+                        $arls = $options['opt1'];
+                    } else {
+                        $arls = $this->read_arl($options['opt1']);
+                    }
                     if (empty($arls)) {
-                        // ARLファイルが空だった
+                        // ARLが空だった
                     } else {
                         $req = array(
                             'type' => 'arl',
