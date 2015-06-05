@@ -8,7 +8,13 @@ class Hipchat {
     
     const API_V2_ENDPOINT = 'https://api.hipchat.com/v2/';
     
-    public function send_message($token, $room, $msg) {
+    private $_config;
+    
+    public function __construct($token) {
+        $this->_config['token'] = $token;
+    }
+    
+    public function send_message($room, $msg) {
         $success = false;
         $api = new Webapi();
         $url = self::API_V2_ENDPOINT . 'room/' . $room . '/notification';
@@ -16,7 +22,7 @@ class Hipchat {
             'content-type' => 'json',
             'ssl-verify' => false,
             'headers' => array(
-                'Authorization: Bearer ' . $token,
+                'Authorization: Bearer ' . $this->_config['token'],
             ),
         );
         $params= array(
