@@ -140,7 +140,7 @@ class Akamai {
             $cdnRequest->save();
             $success = true;
             $result['api-response-json'] = $json;
-            $result['message'] = 'Akamai:: Purge request accepted - [' . $json['purgeId'] . ']';
+            $result['message'] = 'akamai(' . $this->user . '):: Purge request accepted - [' . $json['purgeId'] . ']';
         } else {
             $result['error'] = $json['title'];
         }
@@ -168,8 +168,10 @@ class Akamai {
                     $entry->done = 1;
                     $entry->updated_at = date('Y-m-d H:i:s');
                     $entry->save();
+                    $entry->message = ($entry->cdnType) . '(' . $entry->accountName . '):: Purge done - [' . ($entry->purgeId) . ']';
                     $complete[] = $entry;
                 } else {
+                    $entry->message = ($entry->cdnType) . '(' . $entry->accountName . '):: Purge in progress - [' . ($entry->purgeId) . ']';
                     $incomplete[] = $entry;
                 }
             }
