@@ -1,7 +1,7 @@
 cdntools:
     build: .
     ports:
-     - "80:80"
+     - "8032:80"
     environment:
        SERVICE_80_NAME: http
        SERVICE_NAME: cdntools
