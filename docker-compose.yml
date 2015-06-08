@@ -7,5 +7,5 @@ cdntools:
        SERVICE_NAME: cdntools
        SERVICE_TAGS: production
     volumes:
-     - "~/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
+     - "/Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
 
