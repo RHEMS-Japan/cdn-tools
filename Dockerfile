@@ -40,6 +40,10 @@ RUN /usr/sbin/a2enmod rewrite
 ADD cdn.sh /usr/bin/cdn
 RUN chmod 755 /usr/bin/cdn
 
+RUN echo '# FuelPHP Cron' > /etc/cron.d/fuelphp
+RUN echo "* * * * * root /usr/bin/cdn batch" >> /etc/cron.d/fuelphp
+RUN chmod 755 /etc/cron.d/fuelphp
+
 ADD startup.sh /
 RUN chmod 755 /startup.sh
 
