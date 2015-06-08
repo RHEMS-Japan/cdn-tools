@@ -48,7 +48,7 @@ RUN chmod 755 /etc/cron.d/fuelphp
 ADD startup.sh /
 RUN chmod 755 /startup.sh
 
-VOLUME ["/var/www/fuelphp/fuel/app/config"]
+VOLUME ["/var/www/fuelphp/fuel/app/config/production"]
 
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
