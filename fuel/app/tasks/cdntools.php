@@ -154,6 +154,7 @@ class cdntools {
                 case 'keycdn':
                     $options = array(
                         'opt1' => $opt1,
+                        'opt2' => $opt2,
                     );
                     break;
                 case 'cloudfront':
