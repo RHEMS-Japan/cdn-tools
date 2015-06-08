@@ -148,10 +148,13 @@ class cdntools {
                         'quiet' => $quiet,
                         'domain' => $domain,
                         'action' => $action,
-                        'opt1' => $opt1
+                        'opt1' => $opt1,
                     );
                     break;
                 case 'keycdn':
+                    $options = array(
+                        'opt1' => $opt1,
+                    );
                     break;
                 case 'cloudfront':
                     break;
@@ -164,7 +167,7 @@ class cdntools {
                 $cls_name = "\\Cdn\\" . $cdn;
                 $cdn_service = new $cls_name($account_name, $account_config);
                 $result = $cdn_service->delegate($command, $options);
-                if ($notification_config && (!$quiet)) {
+                if ($notification_config && (!$quiet) && $result['success']) {
                     // 通知を行う
                     self::nofitication($notification_config, $result['message']);
                 }
