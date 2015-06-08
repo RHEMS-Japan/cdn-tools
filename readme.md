@@ -10,70 +10,13 @@ RHEMS CDN-ToolsはCloudFront / KeyCDN / Akamai 等のCDNサービスに対しキ
 
 利用統計情報が取得可能なCDNサービスの場合は設定アカウントごとに転送量等の情報をWebインターフェースにて確認することが可能です
 
-メッセージングサービスは現在のところSlack / HipChatのサポートを予定しています
+メッセージングサービスは現在のところSlack / HipChatのサポートしています
 
 ## システム要件
 
 Docker 1.5以降が動作する環境にてテストを行っています
 
 Docker Composeの定義ファイルを同梱していますのでDocker Composeの導入もお薦めします(必須ではありません)
-
-## 設定ファイルの準備
-
-直接ビルド前に設定ファイルを修正するか、コンテナ起動時のボリュームオプションにて設定ファイルの場所を指定する必要があります
-後者は設定変更が頻繁に行われる場合便利です
-
-設定ひな形はfuel/app/config/example以下にあります
-
-
-```
-<?php
-return array(
-   'akamai' => array(
-       'account1' => array(
-           'enable' => true,
-           'authentication' => array(
-               'user' => 'hogehoge@hogefuga.jp',
-               'password' => 'hogehoge',
-           ),
-           'notification' => array(
-               'type' => 'mail',
-               'addr' => 'hogehoge@hogefuga.jp',
-               'title' => 'report-akamai',
-           ),
-       ),
-   ),
-   'keycdn' => array(
-       'account1' => array(
-           'enable' => true,
-           'authentication' => array(
-               'user' => 'hogehoge@hogefuga.jp',
-               'password' => 'hogehoge',
-           ),           
-           'notification' => array(
-               'type' => 'slack',
-               'token' => 'XXXX-YYYY-XZZZZ-ZZXXYY-000-AAAA',
-               'title' => 'report-keycdn',
-               'channel' => 'cdn-channel',
-           ),
-       ),
-   ),
-   'cloudfront' => array(
-       'account1' => array(
-           'enable' => true,
-           'authentication' => array(
-               'user' => '<AccessKey>',
-               'password' => '<SecretKey>',
-           ),           
-           'notification' => array(
-               'type' => 'hipchat',
-               'token' => '<HipChat v2 API token>',
-               'target' => '@user or room-id',
-           ),
-       ),
-   ),
-);
-```
 
 ## ビルド
 
@@ -85,19 +28,91 @@ $ cd cdn-tools
 $ docker-compose build
 ```
 
+
+## 設定ファイルの準備
+
+設定ひな形はfuel/app/config/example以下にあります
+
+```
+$ cp -R fuel/app/config/example /Users/rhems/.cdn-tools
+```
+
+上記のようにコピーした後、cdn.phpの修正を行って下さい
+
+なお、db.phpについては通常修正の必要はありません
+
+```
+<?php
+
+return array(
+    'akamai' => array(
+        'account1' => array(
+            'authentication' => array(
+                'user' => 'hogehoge@hogefuga.jp',
+                'password' => 'hogehoge',
+            ),
+            'notification' => array(
+                'type' => 'hipchat',
+                'token' => '<HipChat v2 API token>',
+                'room' => '999999',
+            ),
+        ),
+    ),
+    'keycdn' => array(
+        'account1' => array(
+            'authentication' => array(
+                'user' => 'hogehoge@hogefuga.jp',
+                'password' => 'hogehoge',
+            ),
+            'notification' => array(
+                'type' => 'slack',
+                'token' => 'xoxp-xxxxxxxxx-eeeeee-yyyyyyy-zzzzzz',
+                'team' => 'Team',
+                'channel' => 'cdn-channel',
+            ),
+        ),
+    ),
+    '(akamai|keycdn|cloudfront)' => array(
+        '(アカウント名)' => array(
+            'authentication' => array(
+                'user' => 'ログインアカウント|アクセスキー',
+                'password' => 'ログインパスワード|シークレットキー',
+            ),
+            'notification' => array(
+                'type' => 'slack|hipchat',
+                'token' => 'APIアクセスに必要なトークン',
+                'room' => 'ルームID(hipchatの場合必要です)',
+                'channel' => 'チャンネル名(Slackの場合必要です)',
+                'team' => 'チーム名(Slackの場合必要です)',
+            ),
+        ),
+    ),
+);
+```
+
+
 ## 起動
 
-以下ボリュームオプションを利用して`/usr/local/etc/cdn-tools/config`に設定ファイルを配置した例です
+以下ボリュームオプションを利用して`/Users/rhems/.cdn-tools`に設定ファイルを配置した例です
+
+Docker Composeの場合は`docker-compose.yml`のvolumesを適宜修正し
 
 ```
-docker run (コンテナID) \
-  -v "/usr/local/etc/cdn-tools:/etc/cdn-tools"
+$ docker-compose up -d
 ```
+
+手動で起動する場合は設定ファイルのディレクトリをボリュームオプションで指定して下さい
+
+```
+$ docker run (コンテナID) \
+  -v "/Users/hac/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
+```
+
 
 ## パージリクエストデータベースの作成
 
 ```
-docker exec -it (コンテナID) /usr/bin/cdn initdb
+docker exec -it (コンテナID) /usr/bin/cdn init-db
 drop table cdnrequet! are you ready? [ Y, n ]: Y
 Database initialized.
 ```
@@ -112,34 +127,48 @@ docker execによるコマンド実行によりリクエストを発行します
 $ docker exec <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウント名> <コマンド> <オプション>
 ```
 
-例：AkamaiにてCPコードによるパージリクエストを発行する場合
+パージ処理の進捗状況はバッチ処理にて毎分確認され、処理完了が通知されます
+
+### Akamai
+
+* CPコードによるパージ
 
 ```
-$ docker exec cdn_tools:latest /usr/bin/cdn akamai account1 \
-    purge 12345678 --domain production --action invalidate
+$ docker exec <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge (CPコード) [-domain=staging|production] [-action=invalidate|remove]
 ```
 
-### 利用可能なコマンド
+* ARLファイルによるパージ
 
-* list
+```
+$ docker exec <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge-url (ARLファイルパス) [-domain=staging|production] [-action=invalidate|remove]
+```
 
-    Akamai以外のCDNサービスについてはゾーン/ディストリビューションIDの一覧を取得できます
+ARLファイルパスはコンテナ内のフルパスを記述して下さい。
+設定ディレクトリにARLファイルを配置している場合は`/var/www/fuelphp/fuel/app/config/production/(ARLファイル名)`となります
 
-* purge
+### KeyCDN
 
-    Akamaiの場合はCPコード、KeyCDNの場合はゾーンID、CloudFrontの場合はディストリビューションID単位でのパージリクエストを行います。CDNサービス毎に指定できるオプションが異なります。なおKeyCDNのみは即時実行となりますのでご注意下さい
+* ゾーン名によるパージ
 
-* purgeUrl
+```
+$ docker exec <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge (ゾーン名)
+```
 
-    前述のpurgeコマンドでの各コード/IDと合わせ局所的なパージを要求します。パスを列挙したファイルを指定して下さい。各CDNサービスによってURLの指定方法が異なりますので注意が必要です
+処理は即時開始されます
 
-* check
+* URLによるパージ
 
-    各パージリクエストで発行されたリクエストIDごとの進行状況を確認します
+```
+$ docker exec <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge-url (ゾーン名) (URLファイル)
+```
+
+URLファイルパスはコンテナ内のフルパスを記述して下さい。
+設定ディレクトリにURLファイルを配置している場合は`/var/www/fuelphp/fuel/app/config/production/(URLファイル名)`となります
+
     
 ## Webインターフェースからの操作
 
-http://(コンテナIP):8031/
+http://(コンテナIP):8032/
 
-```現在作成中```
+```現在ドキュメント作成中```
 
