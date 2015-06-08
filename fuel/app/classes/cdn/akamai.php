@@ -6,14 +6,6 @@ use Config;
 use Validation;
 use Webapi;
 
-class Akamai_Validator {
-
-    public function _validation_validfile($val) {
-        return file_exists($val);
-    }
-
-}
-
 class Akamai {
 
     const PURGE_BASE = 'https://api.ccu.akamai.com';
@@ -31,15 +23,13 @@ class Akamai {
 
     public function validate($type) {
         $val = Validation::forge();
-        $val->add_callable(new Akamai_Validator);
         switch ($type) {
             case 'purge':
                 $val->add('opt1', 'CP code')->add_rule('required')
                         ->add_rule('valid_string', array('numeric'));
                 break;
             case 'purge-url':
-                $val->add('opt1', 'ARL File')->add_rule('required')
-                        ->add_rule('validfile');
+                $val->add('opt1', 'ARL File')->add_rule('required');
                 break;
         }
         return $val;
@@ -47,12 +37,14 @@ class Akamai {
 
     public function read_arl($fn) {
         $arls = array();
-        $arlfile = file($fn);
-        foreach ($arlfile as $ari) {
-            $buff = trim($ari);
-            if (!empty($buff)) {
-                if (substr($buff, 0, 1) != '#') {
-                    $arls[] = $buff;
+        if (file_exists($fn)) {
+            $arlfile = file($fn);
+            foreach ($arlfile as $ari) {
+                $buff = trim($ari);
+                if (!empty($buff)) {
+                    if (substr($buff, 0, 1) != '#') {
+                        $arls[] = $buff;
+                    }
                 }
             }
         }
@@ -87,6 +79,7 @@ class Akamai {
                     }
                     if (empty($arls)) {
                         // ARLが空だった
+                        $result['error'] = 'Empty ARL(s).';
                     } else {
                         $req = array(
                             'type' => 'arl',
@@ -97,7 +90,6 @@ class Akamai {
                         $result = $this->purge_request(json_encode($req));
                     }
                 } else {
-                    // パラメータ妥当性検証失敗
                     $result['error'] = 'Invalid parameter.';
                 }
                 break;
