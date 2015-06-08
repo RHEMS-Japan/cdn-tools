@@ -32,6 +32,7 @@ RUN chown www-data:www-data /var/www/fuelphp
 COPY . /var/www/fuelphp
 RUN (cd /var/www/fuelphp && php composer.phar selfupdate && php composer.phar update)
 RUN mkdir /var/www/fuelphp/fuel/app/tmp
+RUN mkdir /var/www/fuelphp/fuel/app/config/production
 RUN (cd /var/www/fuelphp && php oil r install)
 RUN ln -sf /dev/stdout /var/log/apache2/access.log
 RUN ln -sf /dev/stderr /var/log/apache2/error.log
