@@ -105,7 +105,7 @@ $ docker-compose up -d
 
 ```
 $ docker run (コンテナID) \
-  -v "/Users/hac/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
+  -v "/Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
 ```
 
 
