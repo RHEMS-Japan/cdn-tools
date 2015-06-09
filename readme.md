@@ -105,7 +105,7 @@ $ docker-compose up -d
 
 ```
 $ docker run (コンテナID) \
-  -v "/Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
+  -d -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw
 ```
 
 
@@ -124,7 +124,7 @@ Database initialized.
 docker execによるコマンド実行によりリクエストを発行します
 
 ```
-$ docker exec <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウント名> <コマンド> <オプション>
+$ docker exec -it <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウント名> <コマンド> <オプション>
 ```
 
 パージ処理の進捗状況はバッチ処理にて毎分確認され、処理完了が通知されます
@@ -134,13 +134,13 @@ $ docker exec <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウン�
 * CPコードによるパージ
 
 ```
-$ docker exec <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge (CPコード) [-domain=staging|production] [-action=invalidate|remove]
+$ docker exec -it <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge (CPコード) [-domain=staging|production] [-action=invalidate|remove]
 ```
 
 * ARLファイルによるパージ
 
 ```
-$ docker exec <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge-url (ARLファイルパス) [-domain=staging|production] [-action=invalidate|remove]
+$ docker exec -it <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge-url (ARLファイルパス) [-domain=staging|production] [-action=invalidate|remove]
 ```
 
 ARLファイルパスはコンテナ内のフルパスを記述して下さい。
@@ -151,7 +151,7 @@ ARLファイルパスはコンテナ内のフルパスを記述して下さい�
 * ゾーン名によるパージ
 
 ```
-$ docker exec <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge (ゾーン名)
+$ docker exec -it <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge (ゾーン名)
 ```
 
 処理は即時開始されます
@@ -159,7 +159,7 @@ $ docker exec <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge (
 * URLによるパージ
 
 ```
-$ docker exec <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge-url (ゾーン名) (URLファイル)
+$ docker exec -it <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge-url (ゾーン名) (URLファイル)
 ```
 
 URLファイルパスはコンテナ内のフルパスを記述して下さい。
