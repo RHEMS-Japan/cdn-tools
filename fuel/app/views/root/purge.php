@@ -47,25 +47,8 @@
         </nav>
 
         <div class="container">
-            <table class="table table-hover" ng-controller="cdntools_top">
-                <thead>
-                    <tr>
-                        <th>CDN</th>
-                        <th>Account</th>
-                        <th>Notification</th>
-                    </tr>
-                </thead>
-                <tbody>
-            <?php foreach($accounts as $serviceName => $account): ?>
-            <?php foreach($account as $accountName => $config): ?>
-                    <tr ng-click="redirect('<?php echo $serviceName; ?>','<?php echo $accountName; ?>')">
-                        <td><?php echo $serviceName; ?></td>
-                        <td><?php echo $accountName; ?></td>
-                        <td><?php echo $config['notification']['type']; ?></td>
-                    </tr>
-            <?php endforeach; ?>
-            <?php endforeach; ?>
-            </table>
+            <?php echo $service; ?>
+            <?php echo $account; ?>
             <hr />
             <div style="font-size:8px; text-align: center;">&copy; 2015 RHEMS Japan.CO,. Ltd.</div>
         </div>
