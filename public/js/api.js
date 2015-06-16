@@ -1,12 +1,9 @@
 function purge_request(service, account, form) {
     return new Promise(function (resolve, reject) {
-        var fd = new FormData(form);
         var url = '/api/purge/' + service + '/' + account + '.json';
         $.ajax(url, {
             method: 'POST',
-            contentType: false,
-            processData: false,
-            data: fd,
+            data: form,
             dataType: 'json',
             success: function (data, dataType) {
                 console.log('purge request success');
@@ -25,10 +22,9 @@ function purge_request(service, account, form) {
 function list_queue(service, account) {
     return new Promise(function (resolve, reject) {
         var url = '/api/queue/' + service + '/' + account + '.json';
+        console.log(url);
         $.ajax(url, {
             method: 'GET',
-            contentType: false,
-            processData: false,
             success: function (data, dataType) {
                 console.log('list queue success');
                 resolve(data);
