@@ -3,6 +3,7 @@
 return array(
     'akamai' => array(
         'account1' => array(
+            'defaults' => array('00000000'),
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
@@ -15,6 +16,7 @@ return array(
         ),
     ),
     'keycdn' => array(
+        'defaults' => array('zone-name'),
         'account1' => array(
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
