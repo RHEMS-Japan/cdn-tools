@@ -31,7 +31,7 @@ class Controller_Api extends Controller_Rest {
                         array('cdnType', $service),
                         array('accountName', $account),
                     ),
-                    'order_by' => array('updated_at' => 'desc'),
+                    'order_by' => array('created_at' => 'desc'),
                     'limit' => 5,
         ));
         return $this->response($queue);
