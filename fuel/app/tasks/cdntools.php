@@ -30,8 +30,8 @@ class cdntools {
                         detail text,
                         pingAfterSeconds int,
                         done int,
-                        created_at text,
-                        updated_at text
+                        created_at int,
+                        updated_at int
                     );'
                 )->execute();
     }
