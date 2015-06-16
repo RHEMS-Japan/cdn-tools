@@ -6,6 +6,7 @@ use Config;
 use Cli;
 use DB;
 use DBUtil;
+use Messaging\Notification;
 use Messaging\Hipchat;
 use Messaging\Slack;
 
@@ -74,25 +75,27 @@ class cdntools {
         return Config::get('cdn.' . $cdn . '.' . $account, false);
     }
 
-    public static function nofitication($config, $msgs) {
-        $result = array(
-            'success' => false,
-        );
-        $token = $config['token'];
-        switch ($config['type']) {
-            case 'slack':
-                $channel = $config['channel'];
-                $msg_api = new Slack($token);
-                $result = $msg_api->send_message($channel, $msgs);
-                break;
-            case 'hipchat':
-                $room = $config['room'];
-                $msg_api = new Hipchat($token);
-                $result = $msg_api->send_message($room, $msgs);
-                break;
-        }
-        return $result;
-    }
+    /*
+      public static function nofitication($config, $msgs) {
+      $result = array(
+      'success' => false,
+      );
+      $token = $config['token'];
+      switch ($config['type']) {
+      case 'slack':
+      $channel = $config['channel'];
+      $msg_api = new Slack($token);
+      $result = $msg_api->send_message($channel, $msgs);
+      break;
+      case 'hipchat':
+      $room = $config['room'];
+      $msg_api = new Hipchat($token);
+      $result = $msg_api->send_message($room, $msgs);
+      break;
+      }
+      return $result;
+      }
+     */
 
     public static function check_batch() {
         $all_config = Config::get('cdn');
@@ -107,7 +110,7 @@ class cdntools {
                         $msgs[] = $item->message;
                         if ($config['notification']) {
                             // 通知を行う
-                            self::nofitication($config['notification'], $item->message);
+                            $n = new Nofitication($config['notification'], $item->message);
                         }
                     }
                 } else {
@@ -170,7 +173,7 @@ class cdntools {
                 $result = $cdn_service->delegate($command, $options);
                 if ($notification_config && (!$quiet) && $result['success']) {
                     // 通知を行う
-                    self::nofitication($notification_config, $result['message']);
+                    $n = new Nofitication($notification_config, $result['message']);
                 }
             } else {
                 // アカウント設定が無効
