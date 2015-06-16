@@ -47,6 +47,7 @@ $ cp -R fuel/app/config/example /Users/rhems/.cdn-tools
 return array(
     'akamai' => array(
         'account1' => array(
+            'defaults' => array('99999999'),
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
@@ -60,6 +61,7 @@ return array(
     ),
     'keycdn' => array(
         'account1' => array(
+            'defaults' => array('hogezone'),
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
@@ -74,6 +76,7 @@ return array(
     ),
     '(akamai|keycdn|cloudfront)' => array(
         '(アカウント名)' => array(
+            'defaults' => array('WebUIで選択可能とするID1', 'ID2'),
             'authentication' => array(
                 'user' => 'ログインアカウント|アクセスキー',
                 'password' => 'ログインパスワード|シークレットキー',
@@ -105,7 +108,7 @@ $ docker-compose up -d
 
 ```
 $ docker run (コンテナID) \
-  -d -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw
+  -d -p 8032:80 -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw
 ```
 
 
@@ -168,7 +171,18 @@ URLファイルパスはコンテナ内のフルパスを記述して下さい�
     
 ## Webインターフェースからの操作
 
-http://(コンテナIP):8032/
+`http://(コンテナIP):8032/` こちらへアクセスして下さい
 
-```現在ドキュメント作成中```
+<img src="public/img/screenshot/screen_1.png" />
+
+`cdn.php`に設定したアカウントの一覧から目的のCDNサービスを選択して下さい
+
+<img src="public/img/screenshot/screen_2.png" />
+
+CDNサービスによって表示は一部異なりますが、それぞれコード/ゾーン、URL/パターンを指定したパージのリクエストが可能です
+
+<img src="public/img/screenshot/screen_3.png" />
+
+パージボタン押下で確認画面が表示されます
+
 
