@@ -9,7 +9,7 @@ class Controller_Root extends Controller {
         );
         return Response::forge(View::forge('root/index', $data));
     }
-    
+
     public function action_purge() {
         $service = $this->param('service');
         $account = $this->param('account');
@@ -17,9 +17,9 @@ class Controller_Root extends Controller {
             'service' => $service,
             'account' => $account,
         );
-        return Response::forge(View::forge('root/purge', $data));
+        return Response::forge(Presenter::forge('root/purge'));
     }
-    
+
     public function action_404() {
         return Response::forge(Presenter::forge('root/404'), 404);
     }
