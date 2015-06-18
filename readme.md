@@ -34,7 +34,7 @@ $ docker-compose build
 設定ひな形はfuel/app/config/example以下にあります
 
 ```
-$ cp -R fuel/app/config/example /Users/rhems/.cdn-tools
+$ cp -R fuel/app/config/example ~/.cdn-tools
 ```
 
 上記のようにコピーした後、cdn.phpの修正を行って下さい
@@ -107,8 +107,9 @@ $ docker-compose up -d
 手動で起動する場合は設定ファイルのディレクトリをボリュームオプションで指定して下さい
 
 ```
-$ docker run (コンテナID) \
-  -d -p 8032:80 -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw
+$ docker run \
+  -d -p 8032:80 -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw \
+  (コンテナイメージ)
 ```
 
 
