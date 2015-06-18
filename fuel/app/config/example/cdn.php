@@ -16,8 +16,8 @@ return array(
         ),
     ),
     'keycdn' => array(
-        'defaults' => array('zone-name'),
         'account1' => array(
+            'defaults' => array('zone-name'),
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
