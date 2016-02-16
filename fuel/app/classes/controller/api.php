@@ -15,7 +15,7 @@ class Controller_Api extends Controller_Rest {
             $cdn_service = new $cls_name($account, $account_config);
             $result = $cdn_service->delegate('purge', Input::post());
             if ($notification_config && $result['success']) {
-                $n = new \Cdn\Notification($notification_config, $result['message']);
+                $n = new \Messaging\Notification($notification_config, $result['message']);
             }
         } else {
             $result['error'] = 'Account settings mismatch.';

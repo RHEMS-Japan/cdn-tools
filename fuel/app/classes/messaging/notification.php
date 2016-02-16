@@ -1,8 +1,7 @@
 <?php
 
-namespace Cdn;
+namespace Messaging;
 
-use Config;
 use Messaging\Hipchat;
 use Messaging\Slack;
 
