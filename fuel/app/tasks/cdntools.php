@@ -75,8 +75,7 @@ class cdntools {
         return Config::get('cdn.' . $cdn . '.' . $account, false);
     }
 
-    /*
-      public static function nofitication($config, $msgs) {
+    public static function nofitication($config, $msgs) {
       $result = array(
       'success' => false,
       );
@@ -94,8 +93,7 @@ class cdntools {
       break;
       }
       return $result;
-      }
-     */
+    }
 
     public static function check_batch() {
         $all_config = Config::get('cdn');
