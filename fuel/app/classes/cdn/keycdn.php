@@ -9,7 +9,7 @@ use Webapi;
 class KeyCdn {
 
     const
-            API_BASE = 'https://www.keycdn.com/';
+            API_BASE = 'https://api.keycdn.com/';
 
     private $user;
     private $config;
