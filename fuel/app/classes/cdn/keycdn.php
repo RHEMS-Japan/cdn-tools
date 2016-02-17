@@ -57,13 +57,28 @@ class KeyCdn {
         return $urls;
     }
 
+    public function get_zonefile() {
+        $result = false;
+        if (array_key_exists('zonelist', $this->config)) {
+            if (file_exists($this->config['zonelist'])) {
+                $result = json_decode(file_get_contents($this->config['zonelist']), true);
+            }
+        }
+        return $result;
+    }
+
     public function get_zonelist() {
         $result = array();
-        $webapi = new Webapi();
-        $api_result = $webapi->execute(self::API_BASE . 'zones.json', $this->config, 'GET');
-        $json = json_decode($api_result['contents'], true);
-        if ($json['status'] == 'success') {
-            $result = $json['data']['zones'];
+        $zonelist = $this->get_zonefile();
+        if ($zonelist) {
+            $result = $zonelist['data']['zones'];
+        } else {
+            $webapi = new Webapi();
+            $api_result = $webapi->execute(self::API_BASE . 'zones.json', $this->config, 'GET');
+            $json = json_decode($api_result['contents'], true);
+            if ($json['status'] == 'success') {
+                $result = $json['data']['zones'];
+            }
         }
         return $result;
     }

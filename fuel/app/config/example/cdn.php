@@ -18,6 +18,7 @@ return array(
     'keycdn' => array(
         'account1' => array(
             'defaults' => array('zone-name'),
+            'zonelist' => APPPATH.'/config/zones.json',
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
