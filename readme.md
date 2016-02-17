@@ -62,6 +62,7 @@ return array(
     'keycdn' => array(
         'account1' => array(
             'defaults' => array('hogezone'),
+            'zonelist' => APPPATH.'/config/production/zones.json',
             'authentication' => array(
                 'user' => 'hogehoge@hogefuga.jp',
                 'password' => 'hogehoge',
@@ -77,6 +78,7 @@ return array(
     '(akamai|keycdn|cloudfront)' => array(
         '(アカウント名)' => array(
             'defaults' => array('WebUIで選択可能とするID1', 'ID2'),
+            'zonelist' => 'ゾーン情報(KeyCDNのみ)',
             'authentication' => array(
                 'user' => 'ログインアカウント|アクセスキー',
                 'password' => 'ログインパスワード|シークレットキー',
