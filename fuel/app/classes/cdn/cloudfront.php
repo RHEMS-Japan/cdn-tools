@@ -29,7 +29,8 @@ class CloudFront {
                 $val->add('opt1', 'Distribution code')->add_rule('required');
                 break;
             case 'purge-url':
-                $val->add('opt1', 'ARL File')->add_rule('required');
+                $val->add('opt1', 'Distribution code')->add_rule('required');
+                $val->add('opt2', 'URL Pattern')->add_rule('required');
                 break;
         }
         return $val;
@@ -78,20 +79,6 @@ class CloudFront {
                     }
                 }
             }
-            /*
-              $result = $webapi->execute(self::PURGE_BASE . $entry->progressUri, $this->config, 'GET');
-              if ($result['http_code'] == 200) {
-              $json = json_decode($result['contents'], true);
-              if ($json['purgeStatus'] == 'Done') {
-              $entry->done = 1;
-              $entry->updated_at = date('Y-m-d H:i:s');
-              $entry->save();
-              $complete[] = $entry;
-              } else {
-              $incomplete[] = $entry;
-              }
-              }
-             */
         }
         $all = count($complete) + count($incomplete);
         return array(
@@ -109,7 +96,7 @@ class CloudFront {
                 'DistributionId' => $request['dist'],
                 'Paths' => array(
                     'Quantity' => 1,
-                    'Items' => array('/*',),
+                    'Items' => $request['pattern'],
                 ),
                 'CallerReference' => microtime(),
             ));
@@ -155,6 +142,20 @@ class CloudFront {
                     $req = array(
                         'type' => 'cpcode',
                         'dist' => $options['opt1'],
+                        'pattern' => array('/*',)
+                    );
+                    $result = $this->purge_request($req);
+                } else {
+                    // パラメータ妥当性検証失敗
+                    $result['error'] = 'Invalid parameter.';
+                }
+                break;
+            case 'purge-url':
+                if ($this->validate($command)->run($options)) {
+                    $req = array(
+                        'type' => 'cpcode',
+                        'dist' => $options['opt1'],
+                        'pattern' => array($options['opt2'])
                     );
                     $result = $this->purge_request($req);
                 } else {
