@@ -110,7 +110,7 @@ class cdntools {
                         $msgs[] = $item->message;
                         if ($config['notification']) {
                             // 通知を行う
-                            $n = new Nofitication($config['notification'], $item->message);
+                            $n = new Notification($config['notification'], $item->message);
                         }
                     }
                 } else {
@@ -161,6 +161,10 @@ class cdntools {
                     );
                     break;
                 case 'cloudfront':
+                    $options = array(
+                        'opt1' => $opt1,
+                        'opt2' => $opt2,
+                    );
                     break;
             }
             $account_config = Config::get('cdn.' . $cdn . '.' . $p2, false);
