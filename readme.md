@@ -23,6 +23,12 @@ Docker Composeの定義ファイルを同梱していますのでDocker Compose�
 Docker Composeがインストール済であれば以下のコマンドでビルドが完了します
 
 ```
+# curl -L https://github.com/docker/compose/releases/download/1.3.2/docker-compose-`uname -s`-`uname -m` > docker-compose
+# sudo cp docker-compose /usr/local/bin/
+# sudo chmod +x /usr/local/bin/docker-compose
+```
+
+```
 $ git clone https://github.com/RHEMS-Japan/cdn-tools
 $ cd cdn-tools
 $ docker-compose build
