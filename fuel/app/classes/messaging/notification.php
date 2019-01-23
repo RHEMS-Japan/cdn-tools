@@ -23,10 +23,15 @@ class Notification {
                 $result = $msg_api->send_message($room, $msgs);
                 break;
         }
+        $this->sendBlueHub($msgs);
         return $result;
     }
 
-    
+    private function sendBlueHub($msgs) {
+        $bhModel = new BlueHub();
+        $bhModel->send_message($msgs);
+    }
+
 }
 
 
