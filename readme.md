@@ -1,194 +1,156 @@
-# RHEMS CDN-Tools
+# RHEMS CDN-Tools ver.2
 
-RHEMS CDN-ToolsはCloudFront / KeyCDN / Akamai 等のCDNサービスに対しキャッシュパージや利用情報の照会を行うプログラムをDockerコンテナにまとめて提供するものです
+RHEMS CDN-Toolsは、CDNサービスに対し、キャッシュパージを行うプログラムをDockerコンテナにまとめて提供するものです。サポート対象のCDNサービスは、**CloudFront** と **CloudFlare**です。
 
 ## 機能
 
-パージリクエストからパージ完了までを監視し、メール/インスタントメッセージサービスに状態を通知することが可能です
+CloudFrontの場合、パージリクエストからパージ完了までを監視し、メール/インスタントメッセージサービスに状態を通知することが可能です。
 
-リクエストはCLI(docker execによるもの)とWebインターフェースをそれぞれ用意しています
+CloudFlareは、パージの状態を監視する機構が公式から提供されていないので、パージリクエストのみ可能です。
 
-利用統計情報が取得可能なCDNサービスの場合は設定アカウントごとに転送量等の情報をWebインターフェースにて確認することが可能です
+リクエストはCLI(docker execによるもの)とWebインターフェースをそれぞれ用意しています。       
+利用統計情報が取得可能なCDNサービスの場合は設定アカウントごとに転送量等の情報をWebインターフェースにて確認することが可能です。
 
-メッセージングサービスは現在のところSlack / HipChatのサポートしています
+メッセージングサービスは、Slack と Chatworkのサポートしています。
 
 ## システム要件
 
-Docker 1.5以降が動作する環境にてテストを行っています
-
-Docker Composeの定義ファイルを同梱していますのでDocker Composeの導入もお薦めします(必須ではありません)
-
 ## ビルド
 
-Docker Composeがインストール済であれば以下のコマンドでビルドが完了します
-
-https://github.com/docker/compose/releases/
-
+Docker Composeがインストール済であれば以下のコマンドでビルドが完了します。
 
 ```
-$ git clone https://github.com/RHEMS-Japan/cdn-tools
+$ git clone https://github.com/RHEMS-Japan/cdn-tools-ver2.git
 $ cd cdn-tools
 $ docker-compose build
 ```
 
-
 ## 設定ファイルの準備
 
-設定ひな形はfuel/app/config/example以下にあります
+このサービスを利用するために、利用者のユーザ情報やapiトークン等を設定ファイルに記述しなければなりません。        
+設定ファイルは、**config/cdn.php** に記述します。        
+**config/cdn.php.example** のひな形を適宜修正し、
 
 ```
-$ cp -R fuel/app/config/example ~/.cdn-tools
+cp config/cdn.php.example config/cdn.php
 ```
 
-上記のようにコピーした後、cdn.phpの修正を行って下さい
-
-なお、db.phpについては通常修正の必要はありません
+を実行してください。ひな型は、以下の通りです。
 
 ```
 <?php
-
 return array(
-    'akamai' => array(
-        'account1' => array(
-            'defaults' => array('99999999'),
+    'cloudflare' => array(
+        'USER_NAME1' => array(      //名前の登録(お好みで)
+            'defaults' => array('000aaa111bbb222ccc', '333ddd444eee555', ・・・),   //対象のzoneID
             'authentication' => array(
-                'user' => 'hogehoge@hogefuga.jp',
-                'password' => 'hogehoge',
-            ),
-            'notification' => array(
-                'type' => 'hipchat',
-                'token' => '<HipChat v2 API token>',
-                'room' => '999999',
-            ),
-        ),
-    ),
-    'keycdn' => array(
-        'account1' => array(
-            'defaults' => array('hogezone'),
-            'zonelist' => APPPATH.'/config/production/zones.json',
-            'authentication' => array(
-                'user' => 'hogehoge@hogefuga.jp',
-                'password' => 'hogehoge',
+                'email' => 'hoge@fuga.com',              //CloudFlareに登録したメールアドレス
+                'apiKey' => '12345abcde6789fghij',       //アカウントのAPIKey
             ),
             'notification' => array(
                 'type' => 'slack',
-                'token' => 'xoxp-xxxxxxxxx-eeeeee-yyyyyyy-zzzzzz',
-                'team' => 'Team',
-                'channel' => 'cdn-channel',
+                'token' => 'aaaabbbbccccdddd111122223333',       //slackのAPIToken
+                'channel' => 'aaabbbcccddd'                      //送信先のチャンネル名
             ),
         ),
-    ),
-    '(akamai|keycdn|cloudfront)' => array(
-        '(アカウント名)' => array(
-            'defaults' => array('WebUIで選択可能とするID1', 'ID2'),
-            'zonelist' => 'ゾーン情報(KeyCDNのみ)',
+        'USER_NAME2' => array(
+            'defaults' => array('abcdefghijklmn12345',  '333ddd444eee555', ・・・),
             'authentication' => array(
-                'user' => 'ログインアカウント|アクセスキー',
-                'password' => 'ログインパスワード|シークレットキー',
+                'email' => 'haha@fufu.com',
+                'apiKey' => 'sssssdddddffffffgggggghhhhhh',
             ),
             'notification' => array(
-                'type' => 'slack|hipchat',
-                'token' => 'APIアクセスに必要なトークン',
-                'room' => 'ルームID(hipchatの場合必要です)',
-                'channel' => 'チャンネル名(Slackの場合必要です)',
-                'team' => 'チーム名(Slackの場合必要です)',
+                'type' => 'chatwork',
+                'token' => '848776f08e968dcb938ac4d902d06c6b',    //chatworkのAPIToken
+                'roomId' => '155634407'                           //送信先のroomId
             ),
         ),
+        //この先も同じ形式でCloudFlareの利用者を追加できる
+    ),
+    'cloudfront' => array(
+        'shindex1' => array(
+            'defaults' => array('ABCDFEG1', 'AAAEEE', ・・・),    //CloudFrontのDistributionId
+            'authentication' => array(
+                'accessKeyId' => 'AAAABBBBCCCC',               //AWSのaccessKeyId
+                'secretAccessKey' => 'aaapppoookkk',           //AWSのsecretAccessKey
+            ),
+            'notification' => array(
+                'type' => 'slack',
+                'token' => 'wwwwaaaassssdddd',
+                'channel' => 'fffggghhhjjj',
+            ),
+        ),
+        'shindex2' => array(
+            'defaults' => array('RRRRFFFFGGGGTTTT', 'AAAAIIIIOOOOKKKK', ・・・),
+            'authentication' => array(
+                'accessKeyId' => 'NNNNMMMMMKKKKJ',
+                'secretAccessKey' => 'kkknnhhhfffddduuu12345',
+            ),
+            'notification' => array(
+                'type' => 'chatwork',
+                'token' => '111222333444555666',
+                'roomId' => '987654321,
+            ),
+        ),
+        //この先も同じ形式でCloudFrontの利用者を追加できる。
     ),
 );
 ```
+CDNが、     
+CloudFlareの場合、**ZONEID、登録済みのメールアドレス、アカウントのAPIKey** が必要。      
+CloudFrontの場合、**DistributionID、AccessKeyID、SecretAccessKey** が必要。      
 
+メッセージングサービスが、       
+slackの場合、**APIToken**([ここ](https://api.slack.com/custom-integrations/legacy-tokens)で取得可能)、送信先の**チャンネル名**が必要。        
+Chatworkの場合、**APIToken**、送信先の**roomID**が必要。
 
 ## 起動
-
-以下ボリュームオプションを利用して`/Users/rhems/.cdn-tools`に設定ファイルを配置した例です
-
-Docker Composeの場合は`docker-compose.yml`のvolumesを適宜修正し
 
 ```
 $ docker-compose up -d
 ```
-
-手動で起動する場合は設定ファイルのディレクトリをボリュームオプションで指定して下さい
-
-```
-$ docker run \
-  -d -p 8032:80 -v /Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production:rw \
-  (コンテナイメージ)
-```
-
-
-## パージリクエストデータベースの作成
-
-```
-docker exec -it (コンテナID) /usr/bin/cdn init-db
-drop table cdnrequet! are you ready? [ Y, n ]: Y
-Database initialized.
-```
-
-すでにテーブルが存在していた場合は上記のような確認が入ります
+でdockerコンテナを起動してください。
+コンテナ初回起動時は、webからアクセスできるようになるまで5分弱かかります。
 
 ## CLIからの操作
 
-docker execによるコマンド実行によりリクエストを発行します
+docker execによるコマンド実行によりパージリクエストを発行します。
 
 ```
-$ docker exec -it <コンテナ名> /usr/bin/cdn <CDNサービス名> <アカウント名> <コマンド> <オプション>
+$ docker exec -it <コンテナ名> php artisan purge ① ② ③ ④
 ```
 
-パージ処理の進捗状況はバッチ処理にて毎分確認され、処理完了が通知されます
+4つの引数について、       
+①は、cloudflare または cloudfront       
+②は、アカウント名(config/cdn.phpに設定したもの)       
+③は、zoneID または DistributionID        
+④は、パージ対象のパス        
+を指定してください。
 
-### Akamai
+④は、必ず必要な引数ではありません。3つの引数のみで実行した場合は、全てのファイルがパージされます。        
+パージ対象を指定する場合、CloudFlareなら**フルパス**を、CloudFrontなら**/以下のパス**を指定してください。
 
-* CPコードによるパージ
+パージ処理の進捗状況はバッチ処理にて毎分確認され、処理完了が通知されます。
 
-```
-$ docker exec -it <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge (CPコード) [-domain=staging|production] [-action=invalidate|remove]
-```
+## WEBインターフェースからの操作
 
-* ARLファイルによるパージ
+`http://localhost:50000/`にアクセスしてください。
 
-```
-$ docker exec -it <コンテナ名> /usr/bin/cdn akamai (アカウント名) purge-url (ARLファイルパス) [-domain=staging|production] [-action=invalidate|remove]
-```
+### トップページ
 
-ARLファイルパスはコンテナ内のフルパスを記述して下さい。
-設定ディレクトリにARLファイルを配置している場合は`/var/www/fuelphp/fuel/app/config/production/(ARLファイル名)`となります
-
-### KeyCDN
-
-* ゾーン名によるパージ
-
-```
-$ docker exec -it <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge (ゾーン名)
-```
-
-処理は即時開始されます
-
-* URLによるパージ
-
-```
-$ docker exec -it <コンテナ名> /usr/bin/cdn keycdn (アカウント名) purge-url (ゾーン名) (URLファイル)
-```
-
-URLファイルパスはコンテナ内のフルパスを記述して下さい。
-設定ディレクトリにURLファイルを配置している場合は`/var/www/fuelphp/fuel/app/config/production/(URLファイル名)`となります
-
-    
-## Webインターフェースからの操作
-
-`http://(コンテナIP):8032/` こちらへアクセスして下さい
-
-<img src="public/img/screenshot/screen_1.png" />
-
-`cdn.php`に設定したアカウントの一覧から目的のCDNサービスを選択して下さい
-
-<img src="public/img/screenshot/screen_2.png" />
-
-CDNサービスによって表示は一部異なりますが、それぞれコード/ゾーン、URL/パターンを指定したパージのリクエストが可能です
-
-<img src="public/img/screenshot/screen_3.png" />
-
-パージボタン押下で確認画面が表示されます
+![top-page](https://user-images.githubusercontent.com/47022289/60344424-7d4ee000-99f1-11e9-9620-d259b56a8f7f.png)
 
 
+### CloudFront
+
+DistributionIDを選択し、パージ対象を **/以下のパス** を指定してください。       
+パージ対象を指定しなかった場合は、全てのファイルがパージされます。
+
+![cloudfront](https://user-images.githubusercontent.com/47022289/60344414-7922c280-99f1-11e9-81a6-bf65bae2479b.png)
+
+### CloudFlare
+
+ZONEIDを選択し、パージ対象を **フルパス** を指定してください。       
+パージ対象を指定しなかった場合は、全てのファイルがパージされます。
+
+![cloudflare](https://user-images.githubusercontent.com/47022289/60345191-6610f200-99f3-11e9-8b19-d13b1c8e570d.png)

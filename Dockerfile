@@ -1,62 +1,32 @@
-FROM ubuntu:14.04
-MAINTAINER zERobYTecODe
-# Container Build
-ENV DEBIAN_FRONTEND noninteractive
-RUN localedef -v -c -i ja_JP -f UTF-8 ja_JP.UTF-8 || :
-RUN echo "Asia/Tokyo" > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
+FROM bitnami/minideb-extras:stretch-r405
+MAINTAINER shindex
 
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get -y install php5 php5-cli
-RUN apt-get -y install php5-curl
-RUN apt-get -y install php5-gd
-RUN apt-get -y install php5-json
-RUN apt-get -y install php5-mcrypt
-RUN apt-get -y install php5-mhash
-RUN apt-get -y install php5-mysqlnd
-RUN apt-get -y install php5-xsl
-RUN apt-get -y install php5-sqlite
-RUN apt-get -y install zip
-RUN apt-get -y install expect
-RUN apt-get -y install cron
-RUN apt-get -y install php5-intl
-RUN apt-get -y install curl
-RUN apt-get -y install git
-RUN apt-get -y install postfix
-RUN apt-get -y install mailutils
-RUN sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
-ADD 000-default.conf /
-RUN cp /000-default.conf /etc/apache2/sites-available/000-default.conf
-RUN mkdir -p /var/www/fuelphp
-RUN chown www-data:www-data /var/www/fuelphp
-COPY . /var/www/fuelphp
-RUN (cd /var/www/fuelphp && php composer.phar selfupdate && php composer.phar update)
-RUN mkdir /var/www/fuelphp/fuel/app/tmp
-RUN mkdir /var/www/fuelphp/fuel/app/config/production
-RUN chown -R www-data:www-data /var/www/fuelphp
-RUN (cd /var/www/fuelphp && php oil r install)
-RUN ln -sf /dev/stdout /var/log/apache2/access.log
-RUN ln -sf /dev/stderr /var/log/apache2/error.log
-RUN /usr/sbin/a2enmod rewrite
+# Install required system packages and dependencies
+RUN install_packages ghostscript imagemagick libbz2-1.0 libc6 libcomerr2 libcurl3 libffi6 libfreetype6 libgcc1 libgcrypt20 libgmp10 libgnutls30 libgpg-error0 libgssapi-krb5-2 libhogweed4 libicu57 libidn11 libidn2-0 libjpeg62-turbo libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 libldap-2.4-2 liblzma5 libmcrypt4 libmemcached11 libmemcachedutil2 libncurses5 libnettle6 libnghttp2-14 libp11-kit0 libpng16-16 libpq5 libpsl5 libreadline7 librtmp1 libsasl2-2 libsqlite3-0 libssh2-1 libssl1.0.2 libssl1.1 libstdc++6 libsybdb5 libtasn1-6 libtidy5 libtinfo5 libunistring0 libxml2 libxslt1.1 zlib1g
+RUN bitnami-pkg unpack php-7.1.30-0 --checksum cee5b9024346ecbdfa75d0d96ad29a6bdfbfa12278fa87ee482c0f8a03edd5cc
+RUN bitnami-pkg install node-8.16.0-1 --checksum 36e0f45fdd69a2470d220f72f04298354c43d8e91c7217998c078c02ff67c698
+RUN bitnami-pkg install laravel-5.8.17-1 --checksum acba88b5d66ad920921027d5203d0cc1e98d53a67933f5bca886bbaa14e78d7a
+RUN mkdir /app && chown bitnami:bitnami /app
 
-ADD cdn.sh /usr/bin/cdn
-RUN chmod 755 /usr/bin/cdn
+COPY rootfs /
+ENV BITNAMI_APP_NAME="laravel" \
+    BITNAMI_IMAGE_VERSION="5.8.17-debian-9-r47" \
+    NODE_PATH="/opt/bitnami/node/lib/node_modules" \
+    PATH="/opt/bitnami/php/bin:/opt/bitnami/php/sbin:/opt/bitnami/node/bin:/opt/bitnami/laravel/bin:$PATH"
 
-RUN echo '# FuelPHP Cron' > /etc/cron.d/fuelphp
-RUN echo "* * * * * root /usr/bin/cdn batch" >> /etc/cron.d/fuelphp
-RUN chmod 755 /etc/cron.d/fuelphp
+EXPOSE 3000
 
-ADD startup.sh /
-RUN chmod 755 /startup.sh
+RUN apt update
+RUN apt install vim -y
+RUN apt install rsyslog -y
+RUN apt install cron -y
+RUN /etc/init.d/rsyslog start
+RUN sed -ie 's/#cron/cron/' /etc/rsyslog.conf
+RUN /etc/init.d/rsyslog restart
+RUN sed -ie 's/#EXTRA_OPTS=""/EXTRA_OPTS="-L 15"/' /etc/default/cron
+RUN echo "* * * * * /opt/bitnami/php/bin/php /app/artisan schedule:run >> /dev/null 2>&1" > /cron.txt
 
-VOLUME ["/var/www/fuelphp/fuel/app/config/production"]
-
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE /var/run/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV LANG=ja_JP.UTF-8
-EXPOSE 80
-ENTRYPOINT ["/bin/bash", "/startup.sh"]
+WORKDIR /app
+USER bitnami
+ENTRYPOINT [ "/app-entrypoint.sh" ]
+CMD [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]

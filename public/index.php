@@ -1,97 +1,60 @@
 <?php
+
 /**
- * Fuel is a fast, lightweight, community driven PHP5 framework.
+ * Laravel - A PHP Framework For Web Artisans
  *
- * @package    Fuel
- * @version    1.7
- * @author     Fuel Development Team
- * @license    MIT License
- * @copyright  2010 - 2014 Fuel Development Team
- * @link       http://fuelphp.com
+ * @package  Laravel
+ * @author   Taylor Otwell <taylor@laravel.com>
  */
 
-/**
- * Set error reporting and display errors settings.  You will want to change these when in production.
- */
-error_reporting(-1);
-ini_set('display_errors', 1);
+define('LARAVEL_START', microtime(true));
 
-/**
- * Website document root
- */
-define('DOCROOT', __DIR__.DIRECTORY_SEPARATOR);
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader for
+| our application. We just need to utilize it! We'll simply require it
+| into the script here so that we don't have to worry about manual
+| loading any of our classes later on. It feels great to relax.
+|
+*/
 
-/**
- * Path to the application directory.
- */
-define('APPPATH', realpath(__DIR__.'/../fuel/app/').DIRECTORY_SEPARATOR);
+require __DIR__.'/../vendor/autoload.php';
 
-/**
- * Path to the default packages directory.
- */
-define('PKGPATH', realpath(__DIR__.'/../fuel/packages/').DIRECTORY_SEPARATOR);
+/*
+|--------------------------------------------------------------------------
+| Turn On The Lights
+|--------------------------------------------------------------------------
+|
+| We need to illuminate PHP development, so let us turn on the lights.
+| This bootstraps the framework and gets it ready for use, then it
+| will load up this application so that we can run it and send
+| the responses back to the browser and delight our users.
+|
+*/
 
-/**
- * The path to the framework core.
- */
-define('COREPATH', realpath(__DIR__.'/../fuel/core/').DIRECTORY_SEPARATOR);
+$app = require_once __DIR__.'/../bootstrap/app.php';
 
-// Get the start time and memory for use later
-defined('FUEL_START_TIME') or define('FUEL_START_TIME', microtime(true));
-defined('FUEL_START_MEM') or define('FUEL_START_MEM', memory_get_usage());
+/*
+|--------------------------------------------------------------------------
+| Run The Application
+|--------------------------------------------------------------------------
+|
+| Once we have the application, we can handle the incoming request
+| through the kernel, and send the associated response back to
+| the client's browser allowing them to enjoy the creative
+| and wonderful application we have prepared for them.
+|
+*/
 
-// Load in the Fuel autoloader
-require COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php';
-class_alias('Fuel\\Core\\Autoloader', 'Autoloader');
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-// Boot the app
-require APPPATH.'bootstrap.php';
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
 
-// Generate the request, execute it and send the output.
-try
-{
-	$response = Request::forge()->execute()->response();
-}
-catch (HttpNotFoundException $e)
-{
-	\Request::reset_request(true);
+$response->send();
 
-	$route = array_key_exists('_404_', Router::$routes) ? Router::$routes['_404_']->translation : Config::get('routes._404_');
-
-	if($route instanceof Closure)
-	{
-		$response = $route();
-
-		if( ! $response instanceof Response)
-		{
-			$response = Response::forge($response);
-		}
-	}
-	elseif ($route)
-	{
-		$response = Request::forge($route, false)->execute()->response();
-	}
-	else
-	{
-		throw $e;
-	}
-}
-
-// Render the output
-$response->body((string) $response);
-
-// This will add the execution time and memory usage to the output.
-// Comment this out if you don't use it.
-if (strpos($response->body(), '{exec_time}') !== false or strpos($response->body(), '{mem_usage}') !== false)
-{
-	$bm = Profiler::app_total();
-	$response->body(
-		str_replace(
-			array('{exec_time}', '{mem_usage}'),
-			array(round($bm[0], 4), round($bm[1] / pow(1024, 2), 3)),
-			$response->body()
-		)
-	);
-}
-
-$response->send(true);
+$kernel->terminate($request, $response);

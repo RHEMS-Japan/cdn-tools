@@ -1,11 +1,26 @@
-cdntools:
-    build: .
-    ports:
-     - "8032:80"
+version: '2'
+services:
+  mariadb:
+    image: 'bitnami/mariadb:latest'
     environment:
-       SERVICE_80_NAME: http
-       SERVICE_NAME: cdntools
-       SERVICE_TAGS: production
-    volumes:
-     - "/Users/rhems/.cdn-tools:/var/www/fuelphp/fuel/app/config/production"
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=my_user
+      - MARIADB_DATABASE=my_database
+      - MARIADB_PASSWORD=my_password
+    ports:
+      - 55006:3306
 
+  myapp:
+    tty: true
+    build: './'
+    environment:
+      - DB_HOST=mariadb
+      - DB_USERNAME=my_user
+      - DB_DATABASE=my_database
+      - DB_PASSWORD=my_password
+    depends_on:
+      - mariadb
+    ports:
+      - 50000:3000
+    volumes:
+      - ./:/app

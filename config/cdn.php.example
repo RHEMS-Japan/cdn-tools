@@ -1,0 +1,57 @@
+<?php
+return array(
+    'cloudflare' => array(
+        'USER_NAME1' => array(      //名前の登録(お好みで)
+            'defaults' => array('000aaa111bbb222ccc', '333ddd444eee555', ・・・),   //対象のzoneID
+            'authentication' => array(
+                'email' => 'hoge@fuga.com',              //CloudFlareに登録したメールアドレス
+                'apiKey' => '12345abcde6789fghij',       //アカウントのAPIKey
+            ),
+            'notification' => array(
+                'type' => 'slack',
+                'token' => 'aaaabbbbccccdddd111122223333',       //slackのAPIToken
+                'channel' => 'aaabbbcccddd'                      //送信先のチャンネル名
+            ),
+        ),
+        'USER_NAME2' => array(
+            'defaults' => array('abcdefghijklmn12345',  '333ddd444eee555', ・・・),
+            'authentication' => array(
+                'email' => 'haha@fufu.com',
+                'apiKey' => 'sssssdddddffffffgggggghhhhhh',
+            ),
+            'notification' => array(
+                'type' => 'chatwork',
+                'token' => '848776f08e968dcb938ac4d902d06c6b',    //chatworkのAPIToken
+                'roomId' => '155634407'                           //送信先のroomId
+            ),
+        ),
+        //この先も同じ形式でCloudFlareの利用者を追加できる
+    ),
+    'cloudfront' => array(
+        'shindex1' => array(
+            'defaults' => array('ABCDFEG1', 'AAAEEE', ・・・),    //CloudFrontのDistributionId
+            'authentication' => array(
+                'accessKeyId' => 'AAAABBBBCCCC',               //AWSのaccessKeyId
+                'secretAccessKey' => 'aaapppoookkk',           //AWSのsecretAccessKey
+            ),
+            'notification' => array(
+                'type' => 'slack',
+                'token' => 'wwwwaaaassssdddd',
+                'channel' => 'fffggghhhjjj',
+            ),
+        ),
+        'shindex2' => array(
+            'defaults' => array('RRRRFFFFGGGGTTTT', 'AAAAIIIIOOOOKKKK', ・・・),
+            'authentication' => array(
+                'accessKeyId' => 'NNNNMMMMMKKKKJ',
+                'secretAccessKey' => 'kkknnhhhfffddduuu12345',
+            ),
+            'notification' => array(
+                'type' => 'chatwork',
+                'token' => '111222333444555666',
+                'roomId' => '987654321,
+            ),
+        ),
+        //この先も同じ形式でCloudFrontの利用者を追加できる。
+    ),
+);

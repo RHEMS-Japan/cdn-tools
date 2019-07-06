@@ -1,166 +1,64 @@
 {
-    "name": "fuel/fuel",
+    "name": "laravel/laravel",
     "type": "project",
-    "description" : "FuelPHP is a simple, flexible, community driven PHP 5.3+ framework, based on the best ideas of other frameworks, with a fresh start!",
-    "keywords": ["application", "website", "development", "framework", "PHP"],
-    "license": "MIT",
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/auth",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/auth.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/email",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/email/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/email.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/oil",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/oil.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/orm",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/orm.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/parser",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/parser.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/core",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/core/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/core.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/docs",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/docs/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/docs.git",
-                    "type": "git",
-                    "reference": "1.8/develop"
-                }
-            }
-        }
+    "description": "The Laravel Framework.",
+    "keywords": [
+        "framework",
+        "laravel"
     ],
+    "license": "MIT",
     "require": {
-        "php": ">=5.3.3",
-        "composer/installers": "~1.0",
-        "fuel/docs": "1.7.2",
-        "fuel/core": "1.7.2",
-        "fuel/auth": "1.7.2",
-        "fuel/email": "1.7.2",
-        "fuel/oil": "1.7.2",
-        "fuel/orm": "1.7.2",
-        "fuel/parser": "1.7.2",
-        "fuelphp/upload": "2.0.1",
-        "monolog/monolog": "1.5.*",
-        "michelf/php-markdown": "1.4.0",
-        "aws/aws-sdk-php": "2.*"
+        "php": "^7.1.3",
+        "aws/aws-sdk-php": "^3.100",
+        "fideloper/proxy": "^4.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "laravel/framework": "5.8.*",
+        "laravel/tinker": "^1.0"
     },
-    "suggest": {
-        "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
-        "mustache/mustache": "Allow Mustache templating with the Parser package",
-        "smarty/smarty": "Allow Smarty templating with the Parser package",
-        "twig/twig": "Allow Twig templating with the Parser package",
-        "pyrocms/lex": "Allow Lex templating with the Parser package",
-        "mthaml/mthaml": "Allow Haml templating with Twig supports with the Parser package"
+    "require-dev": {
+        "beyondcode/laravel-dump-server": "^1.0",
+        "filp/whoops": "^2.0",
+        "fzaninotto/faker": "^1.4",
+        "mockery/mockery": "^1.0",
+        "nunomaduro/collision": "^3.0",
+        "phpunit/phpunit": "^7.5"
     },
     "config": {
-        "vendor-dir": "fuel/vendor"
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
     },
     "extra": {
-        "installer-paths": {
-            "fuel/{$name}": ["fuel/core"],
-            "{$name}": ["fuel/docs"]
+        "laravel": {
+            "dont-discover": []
         }
     },
-    "scripts": {
-        "post-install-cmd": [
-            "php oil r install"
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "classmap": [
+            "database/seeds",
+            "database/factories"
         ]
     },
-    "minimum-stability": "dev"
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    }
 }
