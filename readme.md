@@ -18,7 +18,7 @@ CloudFlareは、パージの状態を監視する機構が公式から提供さ�
 Docker Composeがインストール済であれば以下のコマンドでビルドが完了します。
 
 ```
-$ git clone https://github.com/RHEMS-Japan/cdn-tools-ver2.git
+$ git clone https://github.com/RHEMS-Japan/cdn-tools.git
 $ cd cdn-tools
 $ docker-compose build
 ```
@@ -87,7 +87,7 @@ return array(
             'notification' => array(
                 'type' => 'chatwork',
                 'token' => '111222333444555666',
-                'roomId' => '987654321,
+                'roomId' => '987654321',
             ),
         ),
         //この先も同じ形式でCloudFrontの利用者を追加できる。
