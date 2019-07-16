@@ -10,7 +10,7 @@ services:
     ports:
       - 55006:3306
 
-  myapp:
+  app:
     tty: true
     build: './'
     environment:
