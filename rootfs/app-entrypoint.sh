@@ -77,6 +77,8 @@ crontab /cron.txt
 sudo /etc/init.d/cron restart
 cd /app
 cp .env.example .env
+sed 
+
 php artisan key:generate
 
 exec tini -- "$@"

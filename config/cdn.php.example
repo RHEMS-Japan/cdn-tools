@@ -49,7 +49,7 @@ return array(
             'notification' => array(
                 'type' => 'chatwork',
                 'token' => '111222333444555666',
-                'roomId' => '987654321,
+                'roomId' => '987654321',
             ),
         ),
         //この先も同じ形式でCloudFrontの利用者を追加できる。
