@@ -77,6 +77,7 @@ crontab /cron.txt
 sudo /etc/init.d/cron restart
 cd /app
 cp .env.example .env
+sed -ie "s/APP_DEBUG=true/APP_DEBUG=false/g" .env
 sed -ie "s/DB_HOST=127.0.0.1/DB_HOST=mariadb/g" .env
 sed -ie "s/DB_DATABASE=homestead/DB_DATABASE=my_database/g" .env
 sed -ie "s/DB_USERNAME=homestead/DB_USERNAME=my_user/g" .env
