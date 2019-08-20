@@ -76,7 +76,7 @@ class CloudFront {
                 'DistributionId' => $request['dist'],
                 'InvalidationBatch' => [
                     'Paths' => [
-                        'Quantity' => 1,
+                        'Quantity' => count($request['pattern']),
                         'Items' => $request['pattern'],
                     ],
                     'CallerReference' => microtime(),
