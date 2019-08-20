@@ -9,6 +9,7 @@ services:
       - MARIADB_PASSWORD=my_password
     ports:
       - 55006:3306
+    restart: always
 
   app:
     tty: true
@@ -24,3 +25,4 @@ services:
       - 50000:3000
     volumes:
       - ./:/app
+    restart: always
