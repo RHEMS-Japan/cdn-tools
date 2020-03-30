@@ -91,7 +91,7 @@
 
       <div id="purge">
         <div class="form-group">
-          <label>{{ $info['purge_label'] }}</label>
+          <p><b>{{ $info['purge_label'] }}</b></p>
           <input id="defaults" type="hidden" value=<?php echo implode(",", $info['defaults']); ?>/>
           <select class="form-control" name="default" v-model="params.selected_default">
             <option v-for="def in params.defaults">
@@ -100,10 +100,24 @@
           </select>
         </div>
         <div class="form-unit">
-          <label>{{ $info['purge_url_label'] }}</label>
+          <p><b>{{ $info['purge_url_label'] }}</b></p>
+          <?php if ($info['service'] == 'cloudflare'): ?>
+            
+          <?php endif; ?>
+          <?php if ($info['service'] == 'cloudfront'): ?>
+              <code>
+                Examples:<br>
+                /images/image1.jpg<br>
+                /images/image*<br>
+                /images/*<br>
+                /images*<br>
+                <p></p>
+              </code>
+            
+          <?php endif; ?>
           <textarea id="urls" class="form-control" name="urls" rows="4" cols="80" placeholder="Please specify {{ $info['explain_path'] }}"></textarea><br />
           <button type="button" class="btn btn-primary" id="show-modal" v-on:click="params.modal = true">Purge</button>
-          <purge-modal v-if="params.modal" v-on:close="params.modal = false" v-bind:params="params" v-on:request_purge="purge" service="{{ $info['service_label'] }}" account="{{ $info['account'] }}"></>
+          <purge-modal v-if="params.modal" v-on:close="params.modal = false" v-bind:params="params" v-on:request_purge="purge" service="{{ $info['service_label'] }}" account="{{ $info['account'] }}"></p>
         </div>
       </div> 
 
