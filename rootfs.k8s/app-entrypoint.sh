@@ -82,6 +82,6 @@ cd /app
 # sed -ie "s/DB_DATABASE=homestead/DB_DATABASE=my_database/g" .env
 # sed -ie "s/DB_USERNAME=homestead/DB_USERNAME=my_user/g" .env
 # sed -ie "s/DB_PASSWORD=secret/DB_PASSWORD=my_password/g" .env
-php artisan key:generate
+# php artisan key:generate
 
 exec tini -- "$@"
