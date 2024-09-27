@@ -1,0 +1,24 @@
+FROM bitnami/laravel:5.8.35
+LABEL maintainer=shindex
+
+USER root
+
+RUN echo "deb http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list
+RUN echo "deb-src http://archive.debian.org/debian stretch main" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list
+RUN echo "deb-src http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list
+
+RUN apt-get update || true
+RUN apt-get install -y cron rsyslog
+
+RUN sed -ie 's/#cron/cron/' /etc/rsyslog.conf
+RUN sed -ie 's/#EXTRA_OPTS=""/EXTRA_OPTS="-L 15"/' /etc/default/cron
+
+RUN echo "* * * * * /opt/bitnami/php/bin/php /app/artisan schedule:run >> /dev/null 2>&1" > /cron.txt
+COPY . /app
+RUN chown -R bitnami:bitnami /app
+
+USER bitnami
+COPY rootfs /
+ENTRYPOINT [ "/app-entrypoint.sh" ]
+CMD [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]
