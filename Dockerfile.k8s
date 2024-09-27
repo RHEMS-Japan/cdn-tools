@@ -19,6 +19,6 @@ COPY . /app
 RUN chown -R bitnami:bitnami /app
 
 USER bitnami
-COPY rootfs /
+COPY rootfs.k8s /
 ENTRYPOINT [ "/app-entrypoint.sh" ]
 CMD [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]
