@@ -106,7 +106,7 @@ class CloudFlare {
 
     public function transform_urls_array_to_string($urls) {
         $urls = explode("\n", $urls);
-        $urls = array_map('trim', $urls);
+        $urls = array_map(function($url) { return preg_replace('/^[\s　]+|[\s　]+$/u', '', $url); }, $urls);
         $urls = array_filter($urls, 'strlen');
         $array_urls = array_values($urls);
         $string_urls = '[';

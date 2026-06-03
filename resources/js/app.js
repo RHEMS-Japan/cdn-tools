@@ -31,7 +31,10 @@ new Vue({
   methods: {
     purge() {   
       var self = this;
-      var urls = document.getElementById('urls').value;
+      var urls = document.getElementById('urls').value
+        .split('\n')
+        .map(line => line.replace(/^[\s　]+|[\s　]+$/g, ''))
+        .join('\n');
       var params = this.params; 
       params['urls'] = urls;
       params['service'] = service_name;

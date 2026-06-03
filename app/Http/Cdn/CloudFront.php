@@ -120,7 +120,7 @@ class CloudFront {
         } else {
             $urls = $options['urls'];
             $urls = explode("\n", $urls);
-            $urls = array_map('trim', $urls);
+            $urls = array_map(function($url) { return preg_replace('/^[\s　]+|[\s　]+$/u', '', $url); }, $urls);
             $urls = array_filter($urls, 'strlen');
             $urls = array_values($urls);
         } 

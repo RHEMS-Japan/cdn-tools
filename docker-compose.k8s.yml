@@ -11,7 +11,7 @@ services:
   laravel:
     build:
       context: .
-      dockerfile: Dockerfile.new
+      dockerfile: Dockerfile.k8s
     platform: linux/x86_64
     environment:
       - DB_HOST=mariadb
