@@ -1,155 +1,128 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>RHEMS CDN Tools</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!--
-    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
-    --!>
-    <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
-    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/bower_components/moment/min/moment-with-locales.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>    
+    <title>RHEMS CDN Tools - {{ $info['service_label'] }}</title>
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <style>
-      body {
-        background-color: #FFF;
-      }
-      .rhems-logo {
-        width: 90px;
-      }
-      .form-unit {
-        padding-top: 10px;
-        clear: left;
-      }
-      .form-group {
-        width: 300px;
-        padding-right: 10px;
-      }
-      .label {
-        margin-bottom: 20px;
-      }
-      .modal-mask {
-        position: fixed;
-        z-index: 9998;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, .5);
-        display: table;
-        transition: opacity .3s ease;
-      }
-      .modal-wrapper {
-        display: table-cell;
-        vertical-align: middle;
-      }
-      .modal-container {
-        width: 600px;
-        margin: 0px auto;
-        padding: 20px 30px;
-        background-color: #fff;
-        border-radius: 2px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-        transition: all .3s ease;
-        font-family: Helvetica, Arial, sans-serif;
-      }
-      .modal-header h3 {
-        margin-top: 0;
-        color: black;
-      }
-      .modal-body {
-        margin: 20px 0;
-      }
+        .rhems-logo { width: 32px; }
+        .form-unit { padding-top: 10px; clear: left; }
+        .queue_td { vertical-align: middle; }
+        .modal-mask {
+            position: fixed; z-index: 9998; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, .5);
+            display: table; transition: opacity .3s ease;
+        }
+        .modal-wrapper { display: table-cell; vertical-align: middle; }
+        .modal-container {
+            width: 600px; margin: 0px auto; padding: 20px 30px;
+            background-color: #fff; border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+        }
+        .modal-header h3 { margin-top: 0; color: black; }
+        .modal-body { margin: 20px 0; }
     </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-light bg-light">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/" style="color: gray;">
-            <img alt="brand" src="/img/rhems_logo.png" style="width: 32px"/>
-            RHEMS Apps - CDN Tools
-          </a>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img alt="RHEMS" src="/img/rhems_logo.png" class="rhems-logo me-2"/>
+                RHEMS CDN Tools
+            </a>
         </div>
-      </div>
     </nav>
-    
-    <div class="container">
-      <div class="form-unit">
-        <input id="service" type="hidden" value=<?php echo $info['service_label']; ?>/>
-        <input id="account" type="hidden" value=<?php echo $info['account']; ?>/>
-        <h2 id="service_account" style="margin-top: 10px;">
-          {{ $info['service_label'] }} - {{ $info['account'] }}
-        </h2>
-        <hr />
-      </div>
 
-      <div id="purge">
-        <div class="form-group">
-          <p><b>{{ $info['purge_label'] }}</b></p>
-          <input id="defaults" type="hidden" value=<?php echo implode(",", $info['defaults']); ?>/>
-          <select class="form-control" name="default" v-model="params.selected_default">
-            <option v-for="def in params.defaults">
-              @{{ def.text }}
-            </option>
-          </select>
-        </div>
+    <div id="app" class="container py-4">
         <div class="form-unit">
-          <p><b>{{ $info['purge_url_label'] }}</b></p>
-          <?php if ($info['service'] == 'cloudflare'): ?>
-            
-          <?php endif; ?>
-          <?php if ($info['service'] == 'cloudfront'): ?>
-              <code>
-                Examples:<br>
-                /images/image1.jpg<br>
-                /images/image*<br>
-                /images/*<br>
-                /images*<br>
-                /*<br>
-                <p></p>
-              </code>
-            
-          <?php endif; ?>
-          <textarea id="urls" class="form-control" name="urls" rows="4" cols="80" placeholder="Please specify {{ $info['explain_path'] }}"></textarea><br />
-          <button type="button" class="btn btn-primary" id="show-modal" v-on:click="params.modal = true">Purge</button>
-          <purge-modal v-if="params.modal" v-on:close="params.modal = false" v-bind:params="params" v-on:request_purge="purge" service="{{ $info['service_label'] }}" account="{{ $info['account'] }}"></p>
+            <input id="service" type="hidden" value="{{ $info['service_label'] }}" />
+            <input id="account" type="hidden" value="{{ $info['account'] }}" />
+            <h2 class="mb-3">{{ $info['service_label'] }} - {{ $info['account'] }}</h2>
+            <hr />
         </div>
-      </div> 
 
-      <div class="form-unit" id="update_queue">
-        <h3 style="margin-top:40px">Queue</h3>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Start</th>
-              <th>Purge ID</th>
-              <th>State</th>
-            </tr>
-          </thead>
-          <tbody id="queue-body">
-            @foreach ($historys as $history)
-            <tr class="queue">
-              <td class="queue_td">{{ $history['updated_at'] }}</td>
-              <td class="queue_td">{{ $history['purgeId'] }}</td>
-              <td class="queue_td">{{ ($history['done'] == "1")? 'Done':'Processing'}}</td>
-            </tr>
-            @endforeach
-          </tbody>
-        </table>
+        <div id="purge">
+            <div class="mb-3">
+                <label class="form-label"><b>{{ $info['purge_label'] }}</b></label>
+                <input id="defaults" type="hidden" value="{{ implode(',', $info['defaults']) }}" />
+                <select class="form-select" name="default" v-model="params.selected_default">
+                    <option v-for="def in params.defaults" :value="def.value">
+                        @{{ def.text }}
+                    </option>
+                </select>
+            </div>
 
-        <?php if ($info['service'] == 'cloudfront'): ?>
-        <button type="button" class="btn btn-primary" v-on:click="check_queue()">Update</button>
-        <?php endif; ?>
-      </div>
+            <div class="mb-3">
+                <label class="form-label"><b>{{ $info['purge_url_label'] }}</b></label>
+                @if($info['service'] == 'cloudfront')
+                <div class="mb-2">
+                    <code>
+                        Examples:<br>
+                        /images/image1.jpg<br>
+                        /images/image*<br>
+                        /images/*<br>
+                        /*<br>
+                    </code>
+                </div>
+                @endif
+                <textarea id="urls" class="form-control" name="urls" rows="4"
+                    placeholder="Please specify {{ $info['explain_path'] }}"></textarea>
+            </div>
 
-      <div style="font-size:8px; text-align: center; clear: left;">&copy; 2019 RHEMS Japan.CO,. Ltd.</div>
+            <button type="button" class="btn btn-primary" id="show-modal"
+                v-on:click="params.modal = true">Purge</button>
+
+            <purge-modal v-if="params.modal"
+                v-on:close="params.modal = false"
+                v-bind:params="params"
+                v-on:request_purge="purge"
+                :service="'{{ $info['service_label'] }}'"
+                :account="'{{ $info['account'] }}'">
+            </purge-modal>
+        </div>
+
+        <div class="form-unit" id="update_queue">
+            <h3 class="mt-5 mb-3">Queue</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Start</th>
+                            <th>Purge ID</th>
+                            <th>State</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-body">
+                        @foreach ($historys as $history)
+                        <tr>
+                            <td>{{ $history['updated_at'] }}</td>
+                            <td>{{ $history['purgeId'] }}</td>
+                            <td>
+                                @if($history['done'] == "1")
+                                    <span class="badge bg-success">Done</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">Processing</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            @if($info['service'] == 'cloudfront')
+            <button type="button" class="btn btn-outline-primary" v-on:click="check_queue()">
+                Update
+            </button>
+            @endif
+        </div>
     </div>
-    <script src=" {{ mix('js/app.js') }} "></script> 
-  </body>
+
+    <footer class="text-center text-muted py-3" style="font-size: 0.75rem;">
+        &copy; {{ date('Y') }} RHEMS Japan Co., Ltd.
+    </footer>
+</body>
 </html>

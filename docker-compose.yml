@@ -1,28 +1,33 @@
-version: '2'
 services:
   mariadb:
-    image: 'bitnami/mariadb:10.1'
+    image: mariadb:10.11
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_USER=my_user
-      - MARIADB_DATABASE=my_database
-      - MARIADB_PASSWORD=my_password
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_USER=cdn_user
+      - MYSQL_DATABASE=cdn_tools
+      - MYSQL_PASSWORD=cdn_password
     ports:
       - 55006:3306
-    restart: always
+    restart: unless-stopped
+    volumes:
+      - mariadb_data:/var/lib/mysql
 
   app:
-    tty: true
-    build: './'
+    build: .
     environment:
       - DB_HOST=mariadb
-      - DB_USERNAME=my_user
-      - DB_DATABASE=my_database
-      - DB_PASSWORD=my_password
+      - DB_USERNAME=cdn_user
+      - DB_DATABASE=cdn_tools
+      - DB_PASSWORD=cdn_password
+      - APP_ENV=local
+      - APP_DEBUG=true
     depends_on:
       - mariadb
     ports:
-      - 50000:3000
+      - 50000:80
     volumes:
       - ./:/app
-    restart: always
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
