@@ -22,7 +22,6 @@ export default {
     account: { type: String, default: '' },
     defaults: { type: Array, default: () => [] },
   },
-  emits: ['purge'],
   data() {
     return {
       params: {
@@ -38,13 +37,15 @@ export default {
     },
     purge() {
       const urls = document.getElementById('urls')?.value || '';
-      const data = new FormData();
-      data.append('service', this.service);
-      data.append('account', this.account);
-      data.append('selected_default', this.params.selected_default);
-      data.append('urls', urls);
+      const fd = new FormData();
+      fd.append('service', this.service);
+      fd.append('account', this.account);
+      fd.append('selected_default', this.params.selected_default);
+      fd.append('urls', urls);
       this.params.modal = false;
-      this.$emit('purge', data);
+      window.axios.post('/ajax/purge', fd)
+        .then(() => { window.location.reload(); })
+        .catch(error => { console.error('Purge failed:', error); });
     },
   },
 };

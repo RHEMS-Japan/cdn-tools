@@ -39,9 +39,6 @@ class PurgeController extends Controller
     $return = array(
       "service" => $service,
       "account" => $account,
-      "account_config" => $account_config,
-      "notification_config" => $notification_config,
-      "cdn_service" => $cdn_service,
       "result" => $result
     );
 
