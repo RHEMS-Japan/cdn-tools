@@ -9,6 +9,9 @@ class RootController extends Controller
   public function index()
   {
     $accounts = Config::get('cdn');
+    if (is_null($accounts)) {
+      $accounts = [];
+    }
     return view('index', compact('accounts')); 
   }
 
