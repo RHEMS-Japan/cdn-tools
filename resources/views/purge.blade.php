@@ -36,7 +36,7 @@
         </div>
     </nav>
 
-    <div id="app" class="container py-4">
+    <div class="container py-4">
         <div class="form-unit">
             <input id="service" type="hidden" value="{{ $info['service_label'] }}" />
             <input id="account" type="hidden" value="{{ $info['account'] }}" />
@@ -44,14 +44,14 @@
             <hr />
         </div>
 
-        <div id="purge">
+        <div id="purge-form">
             <div class="mb-3">
                 <label class="form-label"><b>{{ $info['purge_label'] }}</b></label>
                 <input id="defaults" type="hidden" value="{{ implode(',', $info['defaults']) }}" />
-                <select class="form-select" name="default" v-model="params.selected_default">
-                    <option v-for="def in params.defaults" :value="def.value">
-                        @{{ def.text }}
-                    </option>
+                <select class="form-select" name="default" id="default-select">
+                    @foreach($info['defaults'] as $default)
+                    <option value="{{ $default }}">{{ $default }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -72,16 +72,7 @@
                     placeholder="Please specify {{ $info['explain_path'] }}"></textarea>
             </div>
 
-            <button type="button" class="btn btn-primary" id="show-modal"
-                v-on:click="params.modal = true">Purge</button>
-
-            <purge-modal v-if="params.modal"
-                v-on:close="params.modal = false"
-                v-bind:params="params"
-                v-on:request_purge="purge"
-                :service="'{{ $info['service_label'] }}'"
-                :account="'{{ $info['account'] }}'">
-            </purge-modal>
+            <div id="app"></div>
         </div>
 
         <div class="form-unit" id="update_queue">
@@ -114,7 +105,7 @@
             </div>
 
             @if($info['service'] == 'cloudfront')
-            <button type="button" class="btn btn-outline-primary" v-on:click="check_queue()">
+            <button type="button" class="btn btn-outline-primary" id="update-queue-btn">
                 Update
             </button>
             @endif

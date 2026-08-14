@@ -38,7 +38,13 @@
                     <tr role="button" onclick="location.href='/cdn/{{ $serviceName }}/{{ $accountName }}'" style="cursor: pointer;">
                         <td>{{ $serviceName }}</td>
                         <td>{{ $accountName }}</td>
-                        <td><span class="badge bg-info">{{ $config['notification']['type'] }}</span></td>
+                        <td>
+                            @if(!empty($config['notification']['type']))
+                                <span class="badge bg-info">{{ $config['notification']['type'] }}</span>
+                            @else
+                                <span class="badge bg-secondary">N/A</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             @endforeach
